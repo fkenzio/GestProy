@@ -1,0 +1,30 @@
+<div class="login-contenedor">
+    <div class="login-tarjeta">
+        <h1>GestProy</h1>
+        <p>Inicia sesión para continuar</p>
+
+        @if (error()) {
+        <div class="login-error">{{ error() }}</div>
+        }
+
+        <div class="login-campo">
+            <label for="correo">Correo</label>
+            <input id="correo" type="email" placeholder="Ingresa tu correo" [ngModel]="correo()"
+                (ngModelChange)="correo.set($event)" (keydown.enter)="iniciarSesion()" />
+        </div>
+
+        <div class="login-campo">
+            <label for="contraseña">Contraseña</label>
+            <input id="contraseña" type="password" placeholder="Ingresa tu contraseña" [ngModel]="password()"
+                (ngModelChange)="password.set($event)" (keydown.enter)="iniciarSesion()" />
+        </div>
+
+        <button class="login-boton" (click)="iniciarSesion()" [disabled]="cargando()">
+            @if (cargando()) {
+            Ingresando...
+            } @else {
+            Ingresar
+            }
+        </button>
+    </div>
+</div>
