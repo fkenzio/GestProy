@@ -26,7 +26,9 @@ export class LoginComponent {
         }
 
         this.cargando.set(true);
+        //simular login por ahora
         setTimeout(() => {
+            //por ahora la unica validacion para el correo es la @
             if (this.correo().includes('@')) {
                 localStorage.setItem('token', 'token-temporal');
                 this.router.navigate(['/dashboard']);
