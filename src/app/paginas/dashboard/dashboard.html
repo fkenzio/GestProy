@@ -1,0 +1,38 @@
+<div class="dashboard-contenedor">
+    <header class="dashboard-encabezado">
+        <h1>GestProy</h1>
+        <button class="boton-salir" (click)="cerrarSesion()">Cerrar sesion</button>
+    </header>
+
+    <main class="dashboard-contenido">
+        <div class="dashboard-titulo">
+            <div>
+                <h2>Mis proyectos</h2>
+                <p>Selecciona un proyecto para ver su informacion.</p>
+            </div>
+            <button class="boton-nuevo-proyecto">+ Nuevo proyecto</button>
+        </div>
+
+        @if (cargando()) {
+        <p class="mensaje-estado">Cargando proyectos...</p>
+        } @else if (proyectos().length === 0) {
+        <p class="mensaje-estado">No tienes proyectos todavia. Crea uno para empezar.</p>
+        } @else {
+        <ul class="lista-proyectos">
+            @for (proyecto of proyectos(); track proyecto.id) {
+            <li class="proyecto-item" (click)="seleccionarProyecto(proyecto)">
+                <div class="proyecto-info">
+                    <span class="proyecto-nombre">{{ proyecto.nombre }}</span>
+                    @if (proyecto.descripcion) {
+                    <span class="proyecto-descripcion">{{ proyecto.descripcion }}</span>
+                    }
+                </div>
+                <span class="proyecto-estado" [attr.data-estado]="proyecto.estado">
+                    {{ proyecto.estado.replace('_', ' ') }}
+                </span>
+            </li>
+            }
+        </ul>
+        }
+    </main>
+</div>

@@ -1,0 +1,167 @@
+.dashboard-contenedor {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.dashboard-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-encabezado h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111;
+    margin: 0;
+}
+
+.boton-salir {
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #666;
+    background: none;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.boton-salir:hover {
+    background: #f9fafb;
+    color: #111;
+}
+
+.dashboard-contenido {
+    padding: 32px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.dashboard-contenido h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 4px;
+}
+
+.dashboard-contenido p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.dashboard-titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.boton-nuevo-proyecto {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    background-color: #2563eb;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.boton-nuevo-proyecto:hover {
+    background-color: #1d4ed8;
+}
+
+.mensaje-estado {
+    font-size: 14px;
+    color: #999;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.lista-proyectos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.proyecto-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.proyecto-item:hover {
+    border-color: #2563eb;
+}
+
+.proyecto-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.proyecto-nombre {
+    font-size: 15px;
+    font-weight: 500;
+    color: #111;
+}
+
+.proyecto-descripcion {
+    font-size: 13px;
+    color: #666;
+}
+
+.proyecto-estado {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-transform: capitalize;
+    background: #f3f4f6;
+    color: #666;
+}
+
+.proyecto-estado[data-estado="en_progreso"] {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.proyecto-estado[data-estado="planificacion"] {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.proyecto-estado[data-estado="borrador"] {
+    background: #f3f4f6;
+    color: #666;
+}
+
+.proyecto-estado[data-estado="completado"] {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.proyecto-estado[data-estado="pausado"] {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.proyecto-estado[data-estado="cancelado"] {
+    background: #f3f4f6;
+    color: #999;
+}
