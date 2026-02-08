@@ -1,0 +1,128 @@
+.crear-contenedor {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px;
+}
+
+.crear-tarjeta {
+    background: #fff;
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    height: fit-content;
+}
+
+.crear-tarjeta h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 24px;
+}
+
+.crear-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    border: 1px solid #fecaca;
+}
+
+.campo {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.campo label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.campo input,
+.campo textarea,
+.campo select {
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.campo input:focus,
+.campo textarea:focus,
+.campo select:focus {
+    border-color: #2563eb;
+}
+
+.campo textarea {
+    resize: vertical;
+}
+
+.campo select {
+    background: #fff;
+    cursor: pointer;
+}
+
+.campo-fila {
+    display: flex;
+    gap: 12px;
+}
+
+.campo-fila .campo {
+    flex: 1;
+}
+
+.campo-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.boton-cancelar {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    background: none;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.boton-cancelar:hover {
+    background: #f9fafb;
+    color: #111;
+}
+
+.boton-guardar {
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    background-color: #2563eb;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.boton-guardar:hover {
+    background-color: #1d4ed8;
+}
+
+.boton-guardar:disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
+}

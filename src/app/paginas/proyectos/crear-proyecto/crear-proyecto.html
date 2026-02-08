@@ -1,0 +1,56 @@
+<div class="crear-contenedor">
+    <div class="crear-tarjeta">
+        <h2>Nuevo proyecto</h2>
+
+        @if (error()) {
+        <div class="crear-error">{{ error() }}</div>
+        }
+
+        <div class="campo">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" placeholder="Nombre del proyecto" [ngModel]="nombre()"
+                (ngModelChange)="nombre.set($event)" />
+        </div>
+
+        <div class="campo">
+            <label for="descripcion">Descripcion</label>
+            <textarea id="descripcion" placeholder="Describe el proyecto" rows="3" [ngModel]="descripcion()"
+                (ngModelChange)="descripcion.set($event)"></textarea>
+        </div>
+
+        <div class="campo">
+            <label for="prioridad">Prioridad</label>
+            <select id="prioridad" [ngModel]="prioridad()" (ngModelChange)="prioridad.set($event)">
+                <option value="baja">Baja</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+                <option value="critica">Critica</option>
+            </select>
+        </div>
+
+        <div class="campo-fila">
+            <!-- no se si dejarlo -->
+            <div class="campo">
+                <label for="fechaInicio">Fecha inicio</label>
+                <input id="fechaInicio" type="date" [ngModel]="fechaInicio()"
+                    (ngModelChange)="fechaInicio.set($event)" />
+            </div>
+            <!-- no se si dejarlo x2 -->
+            <div class="campo">
+                <label for="fechaFin">Fecha fin</label>
+                <input id="fechaFin" type="date" [ngModel]="fechaFin()" (ngModelChange)="fechaFin.set($event)" />
+            </div>
+        </div>
+
+        <div class="campo-acciones">
+            <button class="boton-cancelar" (click)="cancelar()">Cancelar</button>
+            <button class="boton-guardar" (click)="guardar()" [disabled]="cargando()">
+                @if (cargando()) {
+                Guardando...
+                } @else {
+                Crear proyecto
+                }
+            </button>
+        </div>
+    </div>
+</div>
