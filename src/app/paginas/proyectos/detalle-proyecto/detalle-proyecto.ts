@@ -1,15 +1,15 @@
 import { Component, signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-
-interface Proyecto {
-    id: number;
-    nombre: string;
-    descripcion: string | null;
-    estado: string;
-}
+import { Proyecto } from './models';
+import { ResumenComponent } from './components/resumen/resumen';
+import { MiembrosComponent } from './components/miembros/miembros';
+import { StakeholdersComponent } from './components/stakeholders/stakeholders';
+import { ProcesosComponent } from './components/procesos/procesos';
 
 @Component({
     selector: 'app-detalle-proyecto',
+    standalone: true,
+    imports: [ResumenComponent, MiembrosComponent, StakeholdersComponent, ProcesosComponent],
     templateUrl: './detalle-proyecto.html',
     styleUrl: './detalle-proyecto.css'
 })

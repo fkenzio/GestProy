@@ -23,24 +23,16 @@
     <main class="detalle-contenido">
         @switch (pestanaActiva()) {
         @case ('resumen') {
-        <div class="pestana-vacia">
-            <p>Resumen del proyecto</p>
-        </div>
+        <app-resumen [proyecto]="proyecto()!"></app-resumen>
         }
         @case ('miembros') {
-        <div class="pestana-vacia">
-            <p>Miembros y roles del proyecto</p>
-        </div>
+        <app-miembros [proyecto]="proyecto()!"></app-miembros>
         }
         @case ('stakeholders') {
-        <div class="pestana-vacia">
-            <p>Stakeholders del proyecto</p>
-        </div>
+        <app-stakeholders [proyecto]="proyecto()!"></app-stakeholders>
         }
         @case ('procesos') {
-        <div class="pestana-vacia">
-            <p>Procesos y subprocesos del proyecto</p>
-        </div>
+        <app-procesos [proyecto]="proyecto()!"></app-procesos>
         }
         }
     </main>
