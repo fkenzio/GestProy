@@ -1,0 +1,48 @@
+<div class="detalle-contenedor">
+    <header class="detalle-encabezado">
+        <div class="encabezado-izquierda">
+            <button class="boton-regresar" (click)="regresar()">← Proyectos</button>
+            @if (proyecto()) {
+            <h1>{{ proyecto()!.nombre }}</h1>
+            }
+        </div>
+    </header>
+
+    @if (cargando()) {
+    <p class="mensaje-estado">Cargando proyecto...</p>
+    } @else if (proyecto()) {
+    <nav class="pestanas">
+        @for (pestana of pestanas; track pestana.clave) {
+        <button class="pestana" [class.pestana-activa]="pestanaActiva() === pestana.clave"
+            (click)="cambiarPestana(pestana.clave)">
+            {{ pestana.etiqueta }}
+        </button>
+        }
+    </nav>
+
+    <main class="detalle-contenido">
+        @switch (pestanaActiva()) {
+        @case ('resumen') {
+        <div class="pestana-vacia">
+            <p>Resumen del proyecto</p>
+        </div>
+        }
+        @case ('miembros') {
+        <div class="pestana-vacia">
+            <p>Miembros y roles del proyecto</p>
+        </div>
+        }
+        @case ('stakeholders') {
+        <div class="pestana-vacia">
+            <p>Stakeholders del proyecto</p>
+        </div>
+        }
+        @case ('procesos') {
+        <div class="pestana-vacia">
+            <p>Procesos y subprocesos del proyecto</p>
+        </div>
+        }
+        }
+    </main>
+    }
+</div>
