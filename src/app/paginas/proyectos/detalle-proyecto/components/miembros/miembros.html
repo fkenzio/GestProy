@@ -1,4 +1,105 @@
-<div class="pestana-vacia">
-    <p>Miembros y roles del proyecto</p>
-    <!-- Placeholder for members list -->
+<div class="seccion">
+    <div class="seccion-header">
+        <h3>Roles del proyecto</h3>
+        @if (!mostrarFormRol()) {
+        <button class="boton-agregar" (click)="mostrarFormRol.set(true)">+ Nuevo rol</button>
+        }
+    </div>
+
+    @if (mostrarFormRol()) {
+    <div class="formulario">
+        @if (errorRol()) {
+        <div class="error">{{ errorRol() }}</div>
+        }
+        <div class="campo">
+            <label>Nombre del rol</label>
+            <input type="text" placeholder="Ej: Analista QA" [ngModel]="nuevoRol().nombre"
+                (ngModelChange)="nuevoRol.set({nombre: $event, descripcion: nuevoRol().descripcion})" />
+        </div>
+        <div class="campo">
+            <label>Descripcion</label>
+            <input type="text" placeholder="Descripcion del rol" [ngModel]="nuevoRol().descripcion"
+                (ngModelChange)="nuevoRol.set({nombre: nuevoRol().nombre, descripcion: $event})" />
+        </div>
+        <div class="formulario-acciones">
+            <button class="boton-cancelar" (click)="cancelarRol()">Cancelar</button>
+            <button class="boton-guardar" (click)="agregarRol()">Guardar rol</button>
+        </div>
+    </div>
+    }
+
+    <ul class="lista">
+        @for (rol of roles(); track rol.id) {
+        <li class="lista-item">
+            <div class="lista-info">
+                <span class="lista-nombre">{{ rol.nombre }}</span>
+                @if (rol.descripcion) {
+                <span class="lista-detalle">{{ rol.descripcion }}</span>
+                }
+            </div>
+            <div class="lista-acciones">
+                @if (rol.es_fijo) {
+                <span class="etiqueta-fijo">Fijo</span>
+                } @else {
+                <button class="boton-eliminar" (click)="eliminarRol(rol)">Eliminar</button>
+                }
+            </div>
+        </li>
+        }
+    </ul>
+</div>
+
+<div class="seccion">
+    <div class="seccion-header">
+        <h3>Miembros del proyecto</h3>
+        @if (!mostrarFormMiembro()) {
+        <button class="boton-agregar" (click)="mostrarFormMiembro.set(true)">+ Agregar miembro</button>
+        }
+    </div>
+
+    @if (mostrarFormMiembro()) {
+    <div class="formulario">
+        @if (errorMiembro()) {
+        <div class="error">{{ errorMiembro() }}</div>
+        }
+        <div class="campo">
+            <label>Correo del usuario</label>
+            <input type="email" placeholder="usuario@correo.com" [ngModel]="nuevoMiembro().correo"
+                (ngModelChange)="nuevoMiembro.set({correo: $event, rol_id: nuevoMiembro().rol_id})" />
+        </div>
+        <div class="campo">
+            <label>Rol</label>
+            <select [ngModel]="nuevoMiembro().rol_id"
+                (ngModelChange)="nuevoMiembro.set({correo: nuevoMiembro().correo, rol_id: +$event})">
+                <option [value]="0" disabled>Selecciona un rol</option>
+                @for (rol of roles(); track rol.id) {
+                <option [value]="rol.id">{{ rol.nombre }}</option>
+                }
+            </select>
+        </div>
+        <div class="formulario-acciones">
+            <button class="boton-cancelar" (click)="cancelarMiembro()">Cancelar</button>
+            <button class="boton-guardar" (click)="agregarMiembro()">Agregar</button>
+        </div>
+    </div>
+    }
+
+    @if (miembros().length === 0) {
+    <p class="mensaje-vacio">No hay miembros asignados.</p>
+    } @else {
+    <ul class="lista">
+        @for (miembro of miembros(); track miembro.id) {
+        <li class="lista-item">
+            <div class="lista-info">
+                <span class="lista-nombre">{{ miembro.nombre }} {{ miembro.apellido }}</span>
+                <span class="lista-detalle">{{ miembro.correo }}</span>
+            </div>
+            <div class="lista-acciones">
+                <span class="etiqueta-rol">{{ miembro.rol_nombre }}</span>
+                <button class="boton-eliminar" (click)="eliminarMiembro(miembro)">Quitar</button>
+            </div>
+        </li>
+        }
+    </ul>
+    }
 </div>

@@ -1,3 +1,169 @@
-<div class="pestana-vacia">
-    <p>Procesos y subprocesos del proyecto</p>
+<div class="contenedor-procesos">
+
+    <!-- COLUMNA 1: Procesos -->
+    <div class="columna">
+        <div class="seccion-header">
+            <h3>Procesos</h3>
+            <button class="boton-agregar" (click)="mostrarFormProceso.set(true)">+ Nuevo</button>
+        </div>
+
+        @if (mostrarFormProceso()) {
+        <div class="formulario">
+            @if (errorProceso()) { <div class="error">{{ errorProceso() }}</div> }
+            <div class="campo">
+                <label>Nombre</label>
+                <input type="text" placeholder="Nombre del proceso" [ngModel]="nuevoProceso().nombre"
+                    (ngModelChange)="nuevoProceso.set({nombre: $event, descripcion: nuevoProceso().descripcion, objetivo: nuevoProceso().objetivo})" />
+            </div>
+            <div class="campo">
+                <label>Descripcion</label>
+                <input type="text" placeholder="Descripcion breve" [ngModel]="nuevoProceso().descripcion"
+                    (ngModelChange)="nuevoProceso.set({nombre: nuevoProceso().nombre, descripcion: $event, objetivo: nuevoProceso().objetivo})" />
+            </div>
+            <div class="campo">
+                <label>Objetivo</label>
+                <input type="text" placeholder="Objetivo del proceso" [ngModel]="nuevoProceso().objetivo"
+                    (ngModelChange)="nuevoProceso.set({nombre: nuevoProceso().nombre, descripcion: nuevoProceso().descripcion, objetivo: $event})" />
+            </div>
+            <div class="formulario-acciones">
+                <button class="boton-cancelar" (click)="cancelarProceso()">Cancelar</button>
+                <button class="boton-guardar" (click)="agregarProceso()">Guardar</button>
+            </div>
+        </div>
+        }
+
+        @if (procesos().length === 0) {
+        <p class="mensaje-vacio">Sin procesos.</p>
+        } @else {
+        <ul class="lista">
+            @for (proceso of procesos(); track proceso.id) {
+            <li class="lista-item" [class.item-activo]="procesoSeleccionado()?.id === proceso.id"
+                (click)="seleccionarProceso(proceso)">
+                <div class="lista-info">
+                    <span class="lista-nombre">{{ proceso.nombre }}</span>
+                    @if (proceso.descripcion) {
+                    <span class="lista-detalle">{{ proceso.descripcion }}</span>
+                    }
+                </div>
+                <button class="boton-eliminar" (click)="eliminarProceso(proceso); $event.stopPropagation()">x</button>
+            </li>
+            }
+        </ul>
+        }
+    </div>
+
+    <!-- COLUMNA 2: Subprocesos -->
+    <div class="columna">
+        @if (procesoSeleccionado()) {
+        <div class="seccion-header">
+            <h3>Subprocesos</h3>
+            <button class="boton-agregar" (click)="mostrarFormSubproceso.set(true)">+ Nuevo</button>
+        </div>
+
+        @if (mostrarFormSubproceso()) {
+        <div class="formulario">
+            @if (errorSubproceso()) { <div class="error">{{ errorSubproceso() }}</div> }
+            <div class="campo">
+                <label>Nombre</label>
+                <input type="text" placeholder="Nombre del subproceso" [ngModel]="nuevoSubproceso().nombre"
+                    (ngModelChange)="nuevoSubproceso.set({nombre: $event, descripcion: nuevoSubproceso().descripcion, horas_estimadas: nuevoSubproceso().horas_estimadas})" />
+            </div>
+            <div class="campo">
+                <label>Descripcion</label>
+                <input type="text" placeholder="Descripcion breve" [ngModel]="nuevoSubproceso().descripcion"
+                    (ngModelChange)="nuevoSubproceso.set({nombre: nuevoSubproceso().nombre, descripcion: $event, horas_estimadas: nuevoSubproceso().horas_estimadas})" />
+            </div>
+            <div class="campo">
+                <label>Horas estimadas</label>
+                <input type="number" placeholder="0" [ngModel]="nuevoSubproceso().horas_estimadas"
+                    (ngModelChange)="nuevoSubproceso.set({nombre: nuevoSubproceso().nombre, descripcion: nuevoSubproceso().descripcion, horas_estimadas: $event})" />
+            </div>
+            <div class="formulario-acciones">
+                <button class="boton-cancelar" (click)="cancelarSubproceso()">Cancelar</button>
+                <button class="boton-guardar" (click)="agregarSubproceso()">Guardar</button>
+            </div>
+        </div>
+        }
+
+        @if (subprocesosDeProceso().length === 0) {
+        <p class="mensaje-vacio">Sin subprocesos.</p>
+        } @else {
+        <ul class="lista">
+            @for (sub of subprocesosDeProceso(); track sub.id) {
+            <li class="lista-item" [class.item-activo]="subprocesoSeleccionado()?.id === sub.id"
+                (click)="seleccionarSubproceso(sub)">
+                <div class="lista-info">
+                    <span class="lista-nombre">{{ sub.nombre }}</span>
+                    @if (sub.descripcion) {
+                    <span class="lista-detalle">{{ sub.descripcion }}</span>
+                    }
+                    @if (sub.tecnicas.length > 0) {
+                    <span class="lista-detalle">{{ sub.tecnicas.length }} tecnica(s)</span>
+                    }
+                </div>
+                <button class="boton-eliminar" (click)="eliminarSubproceso(sub); $event.stopPropagation()">x</button>
+            </li>
+            }
+        </ul>
+        }
+        } @else {
+        <p class="mensaje-vacio">Selecciona un proceso.</p>
+        }
+    </div>
+
+    <!-- COLUMNA 3: Tecnicas del subproceso -->
+    <div class="columna">
+        @if (subprocesoSeleccionado()) {
+        <div class="seccion-header">
+            <h3>Tecnicas</h3>
+            <button class="boton-agregar" (click)="mostrarAsignarTecnica.set(true)">+ Asignar</button>
+        </div>
+
+        @if (mostrarAsignarTecnica()) {
+        <div class="formulario">
+            @if (errorTecnica()) { <div class="error">{{ errorTecnica() }}</div> }
+            <div class="campo">
+                <label>Tecnica</label>
+                <select [ngModel]="tecnicaSeleccionada()" (ngModelChange)="tecnicaSeleccionada.set(+$event)">
+                    <option [value]="0" disabled>Selecciona una tecnica</option>
+                    @for (tec of tecnicasDisponibles(); track tec.id) {
+                    <option [value]="tec.id">{{ tec.nombre }} ({{ tec.categoria }})</option>
+                    }
+                </select>
+            </div>
+            <div class="campo">
+                <label>Notas</label>
+                <textarea rows="2" placeholder="Como aplicar esta tecnica aqui" [ngModel]="notasTecnica()"
+                    (ngModelChange)="notasTecnica.set($event)"></textarea>
+            </div>
+            <div class="formulario-acciones">
+                <button class="boton-cancelar" (click)="cancelarTecnica()">Cancelar</button>
+                <button class="boton-guardar" (click)="asignarTecnica()">Asignar</button>
+            </div>
+        </div>
+        }
+
+        @if (subprocesoSeleccionado()!.tecnicas.length === 0) {
+        <p class="mensaje-vacio">Sin tecnicas asignadas.</p>
+        } @else {
+        <ul class="lista">
+            @for (tec of subprocesoSeleccionado()!.tecnicas; track tec.id) {
+            <li class="lista-item">
+                <div class="lista-info">
+                    <span class="lista-nombre">{{ tec.nombre }}</span>
+                    <span class="lista-detalle">{{ tec.categoria }}</span>
+                    @if (tec.notas) {
+                    <span class="lista-detalle">{{ tec.notas }}</span>
+                    }
+                </div>
+                <button class="boton-eliminar" (click)="quitarTecnica(tec)">Quitar</button>
+            </li>
+            }
+        </ul>
+        }
+        } @else {
+        <p class="mensaje-vacio">Selecciona un subproceso.</p>
+        }
+    </div>
+
 </div>

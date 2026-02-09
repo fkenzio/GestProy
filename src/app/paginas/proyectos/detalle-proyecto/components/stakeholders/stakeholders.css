@@ -1,8 +1,253 @@
-.pestana-vacia {
-    padding: 2rem;
-    text-align: center;
-    color: #666;
-    background: white;
+.seccion {
+    margin-bottom: 32px;
+}
+
+.seccion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.seccion-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    margin: 0;
+}
+
+.boton-agregar {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2563eb;
+    background: none;
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.boton-agregar:hover {
+    background: #eff6ff;
+}
+
+.formulario {
+    background: #fff;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.campo {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.campo label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    border-color: #2563eb;
+}
+
+.campo select {
+    background: #fff;
+    cursor: pointer;
+}
+
+.campo textarea {
+    resize: vertical;
+}
+
+.campo-fila {
+    display: flex;
+    gap: 12px;
+}
+
+.campo-fila .campo {
+    flex: 1;
+}
+
+.formulario-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.boton-cancelar {
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #666;
+    background: none;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.boton-cancelar:hover {
+    background: #f9fafb;
+}
+
+.boton-guardar {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    background: #2563eb;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.boton-guardar:hover {
+    background: #1d4ed8;
+}
+
+.error {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    border: 1px solid #fecaca;
+}
+
+.lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.lista-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.lista-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lista-nombre {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111;
+}
+
+.lista-detalle {
+    font-size: 12px;
+    color: #666;
+}
+
+.lista-acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.etiqueta-tipo {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #f3f4f6;
+    color: #666;
+    text-transform: capitalize;
+}
+
+.etiqueta-tipo[data-tipo="cliente"] {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.etiqueta-tipo[data-tipo="patrocinador"] {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.etiqueta-tipo[data-tipo="proveedor"] {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.etiqueta-tipo[data-tipo="interno"] {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.etiqueta-nivel {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #f3f4f6;
+    color: #666;
+    text-transform: capitalize;
+}
+
+.etiqueta-nivel[data-nivel="alto"] {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.etiqueta-nivel[data-nivel="medio"] {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.etiqueta-nivel[data-nivel="bajo"] {
+    background: #f3f4f6;
+    color: #666;
+}
+
+.boton-eliminar {
+    font-size: 12px;
+    color: #ef4444;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.boton-eliminar:hover {
+    color: #dc2626;
+}
+
+.mensaje-vacio {
+    font-size: 14px;
+    color: #999;
+    text-align: center;
+    padding: 32px 0;
 }

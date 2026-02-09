@@ -1,3 +1,99 @@
-<div class="pestana-vacia">
-    <p>Stakeholders del proyecto</p>
+<div class="seccion">
+    <div class="seccion-header">
+        <h3>Stakeholders</h3>
+        @if (!mostrarForm()) {
+        <button class="boton-agregar" (click)="mostrarForm.set(true)">+ Agregar stakeholder</button>
+        }
+    </div>
+
+    @if (mostrarForm()) {
+    <div class="formulario">
+        @if (error()) {
+        <div class="error">{{ error() }}</div>
+        }
+        <div class="campo">
+            <label>Nombre completo</label>
+            <input type="text" placeholder="Nombre del stakeholder" [ngModel]="nuevo().nombre_completo"
+                (ngModelChange)="actualizarCampo('nombre_completo', $event)" />
+        </div>
+        <div class="campo-fila">
+            <div class="campo">
+                <label>Correo</label>
+                <input type="email" placeholder="correo@ejemplo.com" [ngModel]="nuevo().correo"
+                    (ngModelChange)="actualizarCampo('correo', $event)" />
+            </div>
+            <div class="campo">
+                <label>Telefono</label>
+                <input type="text" placeholder="6141234567" [ngModel]="nuevo().telefono"
+                    (ngModelChange)="actualizarCampo('telefono', $event)" />
+            </div>
+        </div>
+        <div class="campo-fila">
+            <div class="campo">
+                <label>Organizacion</label>
+                <input type="text" placeholder="Empresa o institucion" [ngModel]="nuevo().organizacion"
+                    (ngModelChange)="actualizarCampo('organizacion', $event)" />
+            </div>
+            <div class="campo">
+                <label>Cargo</label>
+                <input type="text" placeholder="Puesto o cargo" [ngModel]="nuevo().cargo"
+                    (ngModelChange)="actualizarCampo('cargo', $event)" />
+            </div>
+        </div>
+        <div class="campo-fila">
+            <div class="campo">
+                <label>Tipo</label>
+                <select [ngModel]="nuevo().tipo" (ngModelChange)="actualizarCampo('tipo', $event)">
+                    <option value="interno">Interno</option>
+                    <option value="externo">Externo</option>
+                    <option value="patrocinador">Patrocinador</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="proveedor">Proveedor</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Nivel influencia/interes</label>
+                <select [ngModel]="nuevo().nivel_influencia_interes"
+                    (ngModelChange)="actualizarCampo('nivel_influencia_interes', $event)">
+                    <option value="bajo">Bajo</option>
+                    <option value="medio">Medio</option>
+                    <option value="alto">Alto</option>
+                </select>
+            </div>
+        </div>
+        <div class="campo">
+            <label>Notas</label>
+            <textarea rows="2" placeholder="Observaciones" [ngModel]="nuevo().notas"
+                (ngModelChange)="actualizarCampo('notas', $event)"></textarea>
+        </div>
+        <div class="formulario-acciones">
+            <button class="boton-cancelar" (click)="cancelar()">Cancelar</button>
+            <button class="boton-guardar" (click)="guardar()">Guardar</button>
+        </div>
+    </div>
+    }
+
+    @if (stakeholders().length === 0) {
+    <p class="mensaje-vacio">No hay stakeholders registrados.</p>
+    } @else {
+    <ul class="lista">
+        @for (s of stakeholders(); track s.id) {
+        <li class="lista-item">
+            <div class="lista-info">
+                <span class="lista-nombre">{{ s.nombre_completo }}</span>
+                <span class="lista-detalle">
+                    {{ s.cargo ? s.cargo + ' - ' : '' }}{{ s.organizacion || '' }}
+                    @if (s.correo) { · {{ s.correo }} }
+                </span>
+            </div>
+            <div class="lista-acciones">
+                <span class="etiqueta-tipo" [attr.data-tipo]="s.tipo">{{ s.tipo }}</span>
+                <span class="etiqueta-nivel" [attr.data-nivel]="s.nivel_influencia_interes">{{
+                    s.nivel_influencia_interes }}</span>
+                <button class="boton-eliminar" (click)="eliminar(s)">Eliminar</button>
+            </div>
+        </li>
+        }
+    </ul>
+    }
 </div>
