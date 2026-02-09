@@ -42,6 +42,10 @@ export class DashboardComponent {
     seleccionarProyecto(proyecto: Proyecto): void {
     }
 
+    nuevoProyecto(): void {
+        this.router.navigate(['/proyectos/crear']);
+    }
+
     cerrarSesion(): void {
         localStorage.removeItem('token');
         this.router.navigate(['/login']);

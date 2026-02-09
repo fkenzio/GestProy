@@ -8,6 +8,11 @@ export const routes: Routes = [
         loadComponent: () => import('./paginas/dashboard/dashboard').then(m => m.DashboardComponent),
         canActivate: [authGuard]
     },
+    {
+        path: 'proyectos/crear',
+        loadComponent: () => import('./paginas/proyectos/crear-proyecto/crear-proyecto').then(m => m.CrearProyectoComponent),
+        canActivate: [authGuard]
+    },
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: '**', redirectTo: 'login' }
 ];
