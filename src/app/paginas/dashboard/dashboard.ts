@@ -40,6 +40,7 @@ export class DashboardComponent {
 
     //para cuando se de click en el proyecto
     seleccionarProyecto(proyecto: Proyecto): void {
+        this.router.navigate(['/proyectos', proyecto.id]);
     }
 
     nuevoProyecto(): void {

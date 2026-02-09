@@ -39,4 +39,7 @@ export class LoginComponent {
             this.cargando.set(false);
         }, 1000);
     }
+    irARegistro(): void {
+        this.router.navigate(['/registro']);
+    }
 }

@@ -1,0 +1,53 @@
+<div class="registro-contenedor">
+    <div class="registro-tarjeta">
+        <h1>Crear cuenta</h1>
+        <p>Ingresa tus datos para registrarte.</p>
+
+        @if (error()) {
+        <div class="registro-error">{{ error() }}</div>
+        }
+
+        <div class="campo-fila">
+            <div class="campo">
+                <label for="nombre">Nombres</label>
+                <input id="nombre" type="text" placeholder="Ingresa tus nombres" [ngModel]="nombre()"
+                    (ngModelChange)="nombre.set($event)" />
+            </div>
+            <div class="campo">
+                <label for="apellido">Apellidos</label>
+                <input id="apellido" type="text" placeholder="Ingresa tus apellidos" [ngModel]="apellido()"
+                    (ngModelChange)="apellido.set($event)" />
+            </div>
+        </div>
+
+        <div class="campo">
+            <label for="correo">Correo</label>
+            <input id="correo" type="email" placeholder="Ingresa tu correo" [ngModel]="correo()"
+                (ngModelChange)="correo.set($event)" />
+        </div>
+
+        <div class="campo">
+            <label for="contrasena">Contrasena</label>
+            <input id="contrasena" type="password" placeholder="Tu contraseña" [ngModel]="contrasena()"
+                (ngModelChange)="contrasena.set($event)" />
+        </div>
+
+        <div class="campo">
+            <label for="confirmar">Confirmar contrasena</label>
+            <input id="confirmar" type="password" placeholder="Repite tu contraseña" [ngModel]="confirmarContrasena()"
+                (ngModelChange)="confirmarContrasena.set($event)" (keydown.enter)="registrar()" />
+        </div>
+
+        <button class="registro-boton" (click)="registrar()" [disabled]="cargando()">
+            @if (cargando()) {
+            Registrando...
+            } @else {
+            Crear cuenta
+            }
+        </button>
+
+        <p class="registro-link">
+            Ya tienes cuenta? <span (click)="irALogin()">Inicia sesion</span>
+        </p>
+    </div>
+</div>
