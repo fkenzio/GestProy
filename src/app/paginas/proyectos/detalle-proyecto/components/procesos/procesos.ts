@@ -1,6 +1,9 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Proyecto, Proceso, Subproceso, Tecnica, TecnicaAsignada } from '../../models';
+import { ProcesoService } from '../../../../../compartidos/servicios/proceso.service';
+import { SubprocesoService } from '../../../../../compartidos/servicios/subproceso.service';
+import { TecnicaService } from '../../../../../compartidos/servicios/tecnica.service';
 
 @Component({
     selector: 'app-procesos',
@@ -18,14 +21,7 @@ export class ProcesosComponent {
     procesoSeleccionado = signal<Proceso | null>(null);
     subprocesoSeleccionado = signal<Subproceso | null>(null);
 
-    tecnicasDisponibles = signal<Tecnica[]>([
-        { id: 1, nombre: 'Entrevista', descripcion: 'Entrevista estructurada o semiestructurada', categoria: 'interaccion' },
-        { id: 2, nombre: 'Cuestionario', descripcion: 'Preguntas escritas para recopilar datos', categoria: 'interaccion' },
-        { id: 3, nombre: 'Lluvia de ideas', descripcion: 'Generacion de ideas en grupo', categoria: 'interaccion' },
-        { id: 4, nombre: 'Observacion directa', descripcion: 'Observar el proceso en campo', categoria: 'observacion' },
-        { id: 5, nombre: 'Analisis documental', descripcion: 'Revision de documentos existentes', categoria: 'analisis' },
-        { id: 6, nombre: 'Analisis FODA', descripcion: 'Fortalezas, oportunidades, debilidades, amenazas', categoria: 'analisis' }
-    ]);
+    tecnicasDisponibles = signal<Tecnica[]>([]);
 
     mostrarFormProceso = signal(false);
     mostrarFormSubproceso = signal(false);
@@ -40,32 +36,63 @@ export class ProcesosComponent {
     errorSubproceso = signal('');
     errorTecnica = signal('');
 
+    constructor(
+        private procesoService: ProcesoService,
+        private subprocesoService: SubprocesoService,
+        private tecnicaService: TecnicaService
+    ) {
+        effect(() => {
+            const p = this.proyecto();
+            if (p) {
+                this.cargarProcesos(p.id);
+                this.cargarTecnicas();
+            }
+        });
+    }
+
+    cargarProcesos(proyectoId: number): void {
+        this.procesoService.listarPorProyecto(proyectoId).subscribe({
+            next: (procesos) => this.procesos.set(procesos)
+        });
+    }
+
+    cargarTecnicas(): void {
+        this.tecnicaService.listar().subscribe({
+            next: (tecnicas) => this.tecnicasDisponibles.set(tecnicas)
+        });
+    }
+
     agregarProceso(): void {
         this.errorProceso.set('');
         const p = this.nuevoProceso();
         if (!p.nombre) { this.errorProceso.set('El nombre es obligatorio'); return; }
 
-        const actuales = this.procesos();
-        const nuevoId = actuales.length + 1;
-        this.procesos.set([...actuales, {
-            id: nuevoId,
+        this.procesoService.crear({
+            proyecto_id: this.proyecto().id,
             nombre: p.nombre,
             descripcion: p.descripcion || null,
-            objetivo: p.objetivo || null,
-            responsable_id: null,
-            estado: 'definido'
-        }]);
-        this.nuevoProceso.set({ nombre: '', descripcion: '', objetivo: '' });
-        this.mostrarFormProceso.set(false);
+            objetivo: p.objetivo || null
+        }).subscribe({
+            next: (res) => {
+                this.procesos.set([...this.procesos(), res.proceso]);
+                this.nuevoProceso.set({ nombre: '', descripcion: '', objetivo: '' });
+                this.mostrarFormProceso.set(false);
+            },
+            error: (err) => this.errorProceso.set(err.error?.error || 'Error')
+        });
     }
 
     eliminarProceso(proceso: Proceso): void {
-        this.procesos.set(this.procesos().filter(p => p.id !== proceso.id));
-        this.subprocesos.set(this.subprocesos().filter(s => s.proceso_id !== proceso.id));
-        if (this.procesoSeleccionado()?.id === proceso.id) {
-            this.procesoSeleccionado.set(null);
-            this.subprocesoSeleccionado.set(null);
-        }
+        this.procesoService.eliminar(proceso.id).subscribe({
+            next: () => {
+                this.procesos.set(this.procesos().filter(p => p.id !== proceso.id));
+                this.subprocesos.set(this.subprocesos().filter(s => s.proceso_id !== proceso.id));
+                if (this.procesoSeleccionado()?.id === proceso.id) {
+                    this.procesoSeleccionado.set(null);
+                    this.subprocesoSeleccionado.set(null);
+                }
+            }
+        });
     }
 
     seleccionarProceso(proceso: Proceso): void {
@@ -73,6 +100,13 @@ export class ProcesosComponent {
         this.subprocesoSeleccionado.set(null);
         this.mostrarFormSubproceso.set(false);
         this.mostrarAsignarTecnica.set(false);
+
+        this.subprocesoService.listarPorProceso(proceso.id).subscribe({
+            next: (subs) => {
+                const subsFiltrados = this.subprocesos().filter(s => s.proceso_id !== proceso.id);
+                this.subprocesos.set([...subsFiltrados, ...subs.map(s => ({ ...s, tecnicas: [] }))]);
+            }
+        });
     }
 
     subprocesosDeProceso(): Subproceso[] {
@@ -88,32 +122,50 @@ export class ProcesosComponent {
         if (!proceso) return;
         if (!s.nombre) { this.errorSubproceso.set('El nombre es obligatorio'); return; }
 
-        const actuales = this.subprocesos();
-        const nuevoId = actuales.length + 1;
-        this.subprocesos.set([...actuales, {
-            id: nuevoId,
+        this.subprocesoService.crear({
             proceso_id: proceso.id,
             nombre: s.nombre,
             descripcion: s.descripcion || null,
-            responsable_id: null,
-            estado: 'definido',
-            horas_estimadas: s.horas_estimadas ? parseFloat(s.horas_estimadas) : null,
-            tecnicas: []
-        }]);
-        this.nuevoSubproceso.set({ nombre: '', descripcion: '', horas_estimadas: '' });
-        this.mostrarFormSubproceso.set(false);
+            horas_estimadas: s.horas_estimadas ? parseFloat(s.horas_estimadas) : null
+        }).subscribe({
+            next: (res) => {
+                this.subprocesos.set([...this.subprocesos(), { ...res.subproceso, tecnicas: [] }]);
+                this.nuevoSubproceso.set({ nombre: '', descripcion: '', horas_estimadas: '' });
+                this.mostrarFormSubproceso.set(false);
+            },
+            error: (err) => this.errorSubproceso.set(err.error?.error || 'Error')
+        });
     }
 
     eliminarSubproceso(subproceso: Subproceso): void {
-        this.subprocesos.set(this.subprocesos().filter(s => s.id !== subproceso.id));
-        if (this.subprocesoSeleccionado()?.id === subproceso.id) {
-            this.subprocesoSeleccionado.set(null);
-        }
+        this.subprocesoService.eliminar(subproceso.id).subscribe({
+            next: () => {
+                this.subprocesos.set(this.subprocesos().filter(s => s.id !== subproceso.id));
+                if (this.subprocesoSeleccionado()?.id === subproceso.id) {
+                    this.subprocesoSeleccionado.set(null);
+                }
+            }
+        });
     }
 
     seleccionarSubproceso(subproceso: Subproceso): void {
         this.subprocesoSeleccionado.set(subproceso);
         this.mostrarAsignarTecnica.set(false);
+
+        this.tecnicaService.listarPorSubproceso(subproceso.id).subscribe({
+            next: (asignaciones) => {
+                const tecnicas: TecnicaAsignada[] = asignaciones.map(a => ({
+                    id: a.id,
+                    tecnica_id: a.tecnica_id,
+                    nombre: a.tecnica?.nombre || '',
+                    categoria: a.tecnica?.categoria || '',
+                    notas: a.notas
+                }));
+                const subActualizado = { ...subproceso, tecnicas };
+                this.subprocesos.set(this.subprocesos().map(s => s.id === subproceso.id ? subActualizado : s));
+                this.subprocesoSeleccionado.set(subActualizado);
+            }
+        });
     }
 
     asignarTecnica(): void {
@@ -126,33 +178,44 @@ export class ProcesosComponent {
         const yaAsignada = sub.tecnicas.some(t => t.tecnica_id === tecId);
         if (yaAsignada) { this.errorTecnica.set('Esta tecnica ya esta asignada'); return; }
 
-        const tecnica = this.tecnicasDisponibles().find(t => t.id === tecId);
-        if (!tecnica) return;
-
-        const nuevaTecnica: TecnicaAsignada = {
-            id: Date.now(),
-            tecnica_id: tecnica.id,
-            nombre: tecnica.nombre,
-            categoria: tecnica.categoria,
+        this.tecnicaService.asignar({
+            subproceso_id: sub.id,
+            tecnica_id: tecId,
             notas: this.notasTecnica() || null
-        };
+        }).subscribe({
+            next: (res) => {
+                const a = res.asignacion;
+                const nuevaTecnica: TecnicaAsignada = {
+                    id: a.id,
+                    tecnica_id: a.tecnica_id,
+                    nombre: a.tecnica?.nombre || '',
+                    categoria: a.tecnica?.categoria || '',
+                    notas: a.notas
+                };
 
-        const subActualizado = { ...sub, tecnicas: [...sub.tecnicas, nuevaTecnica] };
-        this.subprocesos.set(this.subprocesos().map(s => s.id === sub.id ? subActualizado : s));
-        this.subprocesoSeleccionado.set(subActualizado);
+                const subActualizado = { ...sub, tecnicas: [...sub.tecnicas, nuevaTecnica] };
+                this.subprocesos.set(this.subprocesos().map(s => s.id === sub.id ? subActualizado : s));
+                this.subprocesoSeleccionado.set(subActualizado);
 
-        this.tecnicaSeleccionada.set(0);
-        this.notasTecnica.set('');
-        this.mostrarAsignarTecnica.set(false);
+                this.tecnicaSeleccionada.set(0);
+                this.notasTecnica.set('');
+                this.mostrarAsignarTecnica.set(false);
+            },
+            error: (err) => this.errorTecnica.set(err.error?.error || 'Error')
+        });
     }
 
     quitarTecnica(tecnica: TecnicaAsignada): void {
         const sub = this.subprocesoSeleccionado();
         if (!sub) return;
 
-        const subActualizado = { ...sub, tecnicas: sub.tecnicas.filter(t => t.id !== tecnica.id) };
-        this.subprocesos.set(this.subprocesos().map(s => s.id === sub.id ? subActualizado : s));
-        this.subprocesoSeleccionado.set(subActualizado);
+        this.tecnicaService.eliminarAsignacion(tecnica.id).subscribe({
+            next: () => {
+                const subActualizado = { ...sub, tecnicas: sub.tecnicas.filter(t => t.id !== tecnica.id) };
+                this.subprocesos.set(this.subprocesos().map(s => s.id === sub.id ? subActualizado : s));
+                this.subprocesoSeleccionado.set(subActualizado);
+            }
+        });
     }
 
     cancelarProceso(): void {

@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../compartidos/servicios/auth.service';
 
 @Component({
     selector: 'app-registro',
@@ -18,7 +19,7 @@ export class RegistroComponent {
     cargando = signal(false);
     error = signal('');
 
-    constructor(private router: Router) { }
+    constructor(private router: Router, private authService: AuthService) { }
 
     registrar(): void {
         this.error.set('');
@@ -35,10 +36,20 @@ export class RegistroComponent {
 
         this.cargando.set(true);
 
-        setTimeout(() => {
-            this.cargando.set(false);
-            this.router.navigate(['/login']);
-        }, 500);
+        this.authService.registro({
+            nombre: this.nombre(),
+            apellido: this.apellido(),
+            correo: this.correo(),
+            contrasena: this.contrasena()
+        }).subscribe({
+            next: () => {
+                this.router.navigate(['/dashboard']);
+            },
+            error: (err) => {
+                this.error.set(err.error?.error || 'Error al registrar');
+                this.cargando.set(false);
+            }
+        });
     }
 
     irALogin(): void {

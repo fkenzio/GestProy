@@ -1,6 +1,7 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Proyecto, Stakeholder } from '../../models';
+import { StakeholderService } from '../../../../../compartidos/servicios/stakeholder.service';
 
 @Component({
     selector: 'app-stakeholders',
@@ -13,10 +14,7 @@ export class StakeholdersComponent {
 
     proyecto = input.required<Proyecto>();
 
-    stakeholders = signal<Stakeholder[]>([
-        { id: 1, nombre_completo: 'Roberto Sanchez', correo: 'roberto@empresa.com', telefono: '6141234567', organizacion: 'Empresa X', cargo: 'Director', tipo: 'cliente', nivel_influencia_interes: 'alto', notas: null },
-        { id: 2, nombre_completo: 'Laura Gomez', correo: 'laura@proveedor.com', telefono: null, organizacion: 'Proveedor Y', cargo: 'Gerente', tipo: 'proveedor', nivel_influencia_interes: 'medio', notas: null }
-    ]);
+    stakeholders = signal<Stakeholder[]>([]);
 
     mostrarForm = signal(false);
     error = signal('');
@@ -32,6 +30,21 @@ export class StakeholdersComponent {
         notas: null
     });
 
+    constructor(private stakeholderService: StakeholderService) {
+        effect(() => {
+            const p = this.proyecto();
+            if (p) {
+                this.cargarStakeholders(p.id);
+            }
+        });
+    }
+
+    cargarStakeholders(proyectoId: number): void {
+        this.stakeholderService.listarPorProyecto(proyectoId).subscribe({
+            next: (stakeholders) => this.stakeholders.set(stakeholders)
+        });
+    }
+
     guardar(): void {
         this.error.set('');
         const s = this.nuevo();
@@ -41,14 +54,22 @@ export class StakeholdersComponent {
             return;
         }
 
-        const actuales = this.stakeholders();
-        const nuevoId = actuales.length + 1;
-        this.stakeholders.set([...actuales, { id: nuevoId, ...s }]);
-        this.resetForm();
+        this.stakeholderService.crear({
+            proyecto_id: this.proyecto().id,
+            ...s
+        }).subscribe({
+            next: (res) => {
+                this.stakeholders.set([...this.stakeholders(), res.stakeholder]);
+                this.resetForm();
+            },
+            error: (err) => this.error.set(err.error?.error || 'Error al crear stakeholder')
+        });
     }
 
     eliminar(stakeholder: Stakeholder): void {
-        this.stakeholders.set(this.stakeholders().filter(s => s.id !== stakeholder.id));
+        this.stakeholderService.eliminar(stakeholder.id).subscribe({
+            next: () => this.stakeholders.set(this.stakeholders().filter(s => s.id !== stakeholder.id))
+        });
     }
 
     cancelar(): void {

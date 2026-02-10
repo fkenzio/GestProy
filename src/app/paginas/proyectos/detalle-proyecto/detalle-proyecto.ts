@@ -5,6 +5,7 @@ import { ResumenComponent } from './components/resumen/resumen';
 import { MiembrosComponent } from './components/miembros/miembros';
 import { StakeholdersComponent } from './components/stakeholders/stakeholders';
 import { ProcesosComponent } from './components/procesos/procesos';
+import { ProyectoService } from '../../../compartidos/servicios/proyecto.service';
 
 @Component({
     selector: 'app-detalle-proyecto',
@@ -26,7 +27,11 @@ export class DetalleProyectoComponent {
         { clave: 'procesos', etiqueta: 'Procesos y Subprocesos' }
     ];
 
-    constructor(private router: Router, private route: ActivatedRoute) { }
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private proyectoService: ProyectoService
+    ) { }
 
     ngOnInit(): void {
         const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -36,15 +41,16 @@ export class DetalleProyectoComponent {
     cargarProyecto(id: number): void {
         this.cargando.set(true);
 
-        setTimeout(() => {
-            this.proyecto.set({
-                id: id,
-                nombre: 'Colio enterprises',
-                descripcion: 'Control de entradas y salidas de almacen',
-                estado: 'en_progreso'
-            });
-            this.cargando.set(false);
-        }, 300);
+        this.proyectoService.obtener(id).subscribe({
+            next: (proyecto) => {
+                this.proyecto.set(proyecto);
+                this.cargando.set(false);
+            },
+            error: () => {
+                this.cargando.set(false);
+                this.router.navigate(['/dashboard']);
+            }
+        });
     }
 
     cambiarPestana(clave: string): void {

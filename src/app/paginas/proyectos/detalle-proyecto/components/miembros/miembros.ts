@@ -1,6 +1,9 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, signal, OnInit, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Proyecto, Rol, Miembro } from '../../models';
+import { RolService } from '../../../../../compartidos/servicios/rol.service';
+import { MiembroService } from '../../../../../compartidos/servicios/miembro.service';
+import { UsuarioService } from '../../../../../compartidos/servicios/usuario.service';
 
 @Component({
     selector: 'app-miembros',
@@ -9,28 +12,62 @@ import { Proyecto, Rol, Miembro } from '../../models';
     templateUrl: './miembros.html',
     styleUrl: './miembros.css'
 })
-export class MiembrosComponent {
+export class MiembrosComponent implements OnInit {
 
     proyecto = input.required<Proyecto>();
 
-    roles = signal<Rol[]>([
-        { id: 1, nombre: 'Product Owner', descripcion: 'Dueno del producto', es_fijo: true },
-        { id: 2, nombre: 'Technical Leader', descripcion: 'Lider tecnico', es_fijo: true }
-    ]);
-
-    miembros = signal<Miembro[]>([
-        { id: 1, usuario_id: 1, nombre: 'Carlos', apellido: 'Lopez', correo: 'carlos@correo.com', rol_id: 1, rol_nombre: 'Product Owner', asignado_por: null },
-        { id: 2, usuario_id: 2, nombre: 'Ana', apellido: 'Martinez', correo: 'ana@correo.com', rol_id: 2, rol_nombre: 'Technical Leader', asignado_por: 1 }
-    ]);
+    roles = signal<Rol[]>([]);
+    miembros = signal<Miembro[]>([]);
+    usuariosDisponibles = signal<any[]>([]);
 
     mostrarFormRol = signal(false);
     mostrarFormMiembro = signal(false);
 
     nuevoRol = signal({ nombre: '', descripcion: '' });
-    nuevoMiembro = signal({ correo: '', rol_id: 0 });
+    nuevoMiembro = signal({ usuario_id: 0, rol_id: 0 });
 
     errorRol = signal('');
     errorMiembro = signal('');
+
+    constructor(
+        private rolService: RolService,
+        private miembroService: MiembroService,
+        private usuarioService: UsuarioService
+    ) {
+        effect(() => {
+            const p = this.proyecto();
+            if (p) {
+                this.cargarDatos(p.id);
+            }
+        });
+    }
+
+    ngOnInit(): void { }
+
+    cargarDatos(proyectoId: number): void {
+        this.rolService.listar(proyectoId).subscribe({
+            next: (roles) => this.roles.set(roles)
+        });
+
+        this.miembroService.listarPorProyecto(proyectoId).subscribe({
+            next: (miembros) => {
+                this.miembros.set(miembros.map(m => ({
+                    id: m.id,
+                    usuario_id: m.usuario_id,
+                    nombre: m.usuario?.nombre || '',
+                    apellido: m.usuario?.apellido || '',
+                    correo: m.usuario?.correo || '',
+                    rol_id: m.rol_id,
+                    rol_nombre: m.rol?.nombre || '',
+                    asignado_por: m.asignado_por
+                })));
+            }
+        });
+
+        this.usuarioService.listar().subscribe({
+            next: (usuarios) => this.usuariosDisponibles.set(usuarios)
+        });
+    }
 
     agregarRol(): void {
         this.errorRol.set('');
@@ -41,24 +78,34 @@ export class MiembrosComponent {
             return;
         }
 
-        const rolesActuales = this.roles();
-        const nuevoId = rolesActuales.length + 1;
-        this.roles.set([...rolesActuales, { id: nuevoId, nombre: rol.nombre, descripcion: rol.descripcion, es_fijo: false }]);
-        this.nuevoRol.set({ nombre: '', descripcion: '' });
-        this.mostrarFormRol.set(false);
+        this.rolService.crear({
+            proyecto_id: this.proyecto().id,
+            nombre: rol.nombre,
+            descripcion: rol.descripcion || null
+        }).subscribe({
+            next: (res) => {
+                this.roles.set([...this.roles(), res.rol]);
+                this.nuevoRol.set({ nombre: '', descripcion: '' });
+                this.mostrarFormRol.set(false);
+            },
+            error: (err) => this.errorRol.set(err.error?.error || 'Error al crear rol')
+        });
     }
 
     eliminarRol(rol: Rol): void {
         if (rol.es_fijo) return;
-        this.roles.set(this.roles().filter(r => r.id !== rol.id));
+
+        this.rolService.eliminar(rol.id).subscribe({
+            next: () => this.roles.set(this.roles().filter(r => r.id !== rol.id))
+        });
     }
 
     agregarMiembro(): void {
         this.errorMiembro.set('');
         const miembro = this.nuevoMiembro();
 
-        if (!miembro.correo) {
-            this.errorMiembro.set('El correo es obligatorio');
+        if (!miembro.usuario_id) {
+            this.errorMiembro.set('Selecciona un usuario');
             return;
         }
         if (!miembro.rol_id) {
@@ -66,27 +113,34 @@ export class MiembrosComponent {
             return;
         }
 
-        const rol = this.roles().find(r => r.id === miembro.rol_id);
-        const miembrosActuales = this.miembros();
-        const nuevoId = miembrosActuales.length + 1;
-
-        this.miembros.set([...miembrosActuales, {
-            id: nuevoId,
-            usuario_id: nuevoId + 10,
-            nombre: 'Nuevo',
-            apellido: 'Usuario',
-            correo: miembro.correo,
-            rol_id: miembro.rol_id,
-            rol_nombre: rol?.nombre || '',
-            asignado_por: 1
-        }]);
-
-        this.nuevoMiembro.set({ correo: '', rol_id: 0 });
-        this.mostrarFormMiembro.set(false);
+        this.miembroService.asignar({
+            proyecto_id: this.proyecto().id,
+            usuario_id: miembro.usuario_id,
+            rol_id: miembro.rol_id
+        }).subscribe({
+            next: (res) => {
+                const m = res.miembro;
+                this.miembros.set([...this.miembros(), {
+                    id: m.id,
+                    usuario_id: m.usuario_id,
+                    nombre: m.usuario?.nombre || '',
+                    apellido: m.usuario?.apellido || '',
+                    correo: m.usuario?.correo || '',
+                    rol_id: m.rol_id,
+                    rol_nombre: m.rol?.nombre || '',
+                    asignado_por: m.asignado_por
+                }]);
+                this.nuevoMiembro.set({ usuario_id: 0, rol_id: 0 });
+                this.mostrarFormMiembro.set(false);
+            },
+            error: (err) => this.errorMiembro.set(err.error?.error || 'Error al asignar miembro')
+        });
     }
 
     eliminarMiembro(miembro: Miembro): void {
-        this.miembros.set(this.miembros().filter(m => m.id !== miembro.id));
+        this.miembroService.eliminar(miembro.id).subscribe({
+            next: () => this.miembros.set(this.miembros().filter(m => m.id !== miembro.id))
+        });
     }
 
     cancelarRol(): void {
@@ -96,7 +150,7 @@ export class MiembrosComponent {
     }
 
     cancelarMiembro(): void {
-        this.nuevoMiembro.set({ correo: '', rol_id: 0 });
+        this.nuevoMiembro.set({ usuario_id: 0, rol_id: 0 });
         this.errorMiembro.set('');
         this.mostrarFormMiembro.set(false);
     }

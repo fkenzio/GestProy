@@ -1,7 +1,8 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ProyectoService } from '../../compartidos/servicios/proyecto.service';
+import { AuthService } from '../../compartidos/servicios/auth.service';
 
-//esto no se va a quedar aqui, es solo para no crear archivos de mas por ahora...
 interface Proyecto {
     id: number;
     nombre: string;
@@ -14,12 +15,16 @@ interface Proyecto {
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.css'
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
 
     proyectos = signal<Proyecto[]>([]);
     cargando = signal(false);
 
-    constructor(private router: Router) { }
+    constructor(
+        private router: Router,
+        private proyectoService: ProyectoService,
+        private authService: AuthService
+    ) { }
 
     ngOnInit(): void {
         this.cargarProyectos();
@@ -27,18 +32,18 @@ export class DashboardComponent {
 
     cargarProyectos(): void {
         this.cargando.set(true);
-        //para simular proyectos
-        setTimeout(() => {
-            this.proyectos.set([
-                { id: 1, nombre: 'Proyecto 1', descripcion: 'Descripcion 1', estado: 'Activo' },
-                { id: 2, nombre: 'Proyecto 2', descripcion: 'Descripcion 2', estado: 'Inactivo' },
-                { id: 3, nombre: 'Proyecto 3', descripcion: 'Descripcion 3', estado: 'Activo' },
-            ]);
-            this.cargando.set(false);
-        }, 500);
+
+        this.proyectoService.listar().subscribe({
+            next: (proyectos) => {
+                this.proyectos.set(proyectos);
+                this.cargando.set(false);
+            },
+            error: () => {
+                this.cargando.set(false);
+            }
+        });
     }
 
-    //para cuando se de click en el proyecto
     seleccionarProyecto(proyecto: Proyecto): void {
         this.router.navigate(['/proyectos', proyecto.id]);
     }
@@ -48,7 +53,7 @@ export class DashboardComponent {
     }
 
     cerrarSesion(): void {
-        localStorage.removeItem('token');
+        this.authService.logout();
         this.router.navigate(['/login']);
     }
 }

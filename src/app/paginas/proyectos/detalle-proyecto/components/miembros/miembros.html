@@ -63,14 +63,19 @@
         <div class="error">{{ errorMiembro() }}</div>
         }
         <div class="campo">
-            <label>Correo del usuario</label>
-            <input type="email" placeholder="usuario@correo.com" [ngModel]="nuevoMiembro().correo"
-                (ngModelChange)="nuevoMiembro.set({correo: $event, rol_id: nuevoMiembro().rol_id})" />
+            <label>Usuario</label>
+            <select [ngModel]="nuevoMiembro().usuario_id"
+                (ngModelChange)="nuevoMiembro.set({usuario_id: +$event, rol_id: nuevoMiembro().rol_id})">
+                <option [value]="0" disabled>Selecciona un usuario</option>
+                @for (usuario of usuariosDisponibles(); track usuario.id) {
+                <option [value]="usuario.id">{{ usuario.nombre }} {{ usuario.apellido }} - {{ usuario.correo }}</option>
+                }
+            </select>
         </div>
         <div class="campo">
             <label>Rol</label>
             <select [ngModel]="nuevoMiembro().rol_id"
-                (ngModelChange)="nuevoMiembro.set({correo: nuevoMiembro().correo, rol_id: +$event})">
+                (ngModelChange)="nuevoMiembro.set({usuario_id: nuevoMiembro().usuario_id, rol_id: +$event})">
                 <option [value]="0" disabled>Selecciona un rol</option>
                 @for (rol of roles(); track rol.id) {
                 <option [value]="rol.id">{{ rol.nombre }}</option>
