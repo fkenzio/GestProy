@@ -69,3 +69,41 @@ export interface TecnicaAsignada {
     categoria: string;
     notas: string | null;
 }
+
+export interface CriterioAceptacion {
+    id: number;
+    requerimiento_id: number;
+    descripcion: string;
+    cumplido: boolean;
+    orden: number;
+}
+
+export interface Requerimiento {
+    id: number;
+    subproceso_id: number;
+    subproceso_tecnica_id: number;
+    codigo: string;
+    titulo: string;
+    descripcion: string | null;
+    tipo: string;
+    prioridad: string;
+    estado: string;
+    metadata: any;
+    tecnica_nombre: string;
+    tecnica_categoria: string;
+    criterios: CriterioAceptacion[];
+}
+
+export interface EjecucionTecnica {
+    id: number;
+    subproceso_tecnica_id: number;
+    datos: any;
+    participantes: string | null;
+    fecha_ejecucion: string | null;
+    estado: string;
+    notas: string | null;
+    creado_por_nombre: string;
+    creado_por_apellido: string;
+    fecha_creacion: string;
+    fecha_actualizacion: string;
+}

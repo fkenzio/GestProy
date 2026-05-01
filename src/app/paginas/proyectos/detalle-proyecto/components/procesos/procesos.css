@@ -23,6 +23,13 @@
     margin: 0;
 }
 
+.seccion-header h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
 .boton-agregar {
     padding: 5px 12px;
     font-size: 12px;
@@ -85,6 +92,15 @@
 
 .campo textarea {
     resize: vertical;
+}
+
+.campo-fila {
+    display: flex;
+    gap: 10px;
+}
+
+.campo-fila .campo {
+    flex: 1;
 }
 
 .formulario-acciones {
@@ -200,4 +216,257 @@
     color: #999;
     text-align: center;
     padding: 24px 0;
+}
+
+/* --- Seccion de ejecuciones --- */
+
+.seccion-ejecuciones {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.datos-dinamicos {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.datos-dinamicos h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: #444;
+}
+
+.campo-dinamico {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+}
+
+.campo-dinamico input,
+.campo-dinamico textarea,
+.campo-dinamico select {
+    flex: 1;
+    padding: 6px;
+    font-size: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+}
+
+.boton-agregar-dinamico {
+    background: none;
+    border: 1px dashed #93c5fd;
+    color: #2563eb;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.boton-agregar-dinamico:hover {
+    background: #eff6ff;
+}
+
+.lista-ejecuciones {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ejecucion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.ejecucion-item:hover {
+    border-color: #93c5fd;
+}
+
+.ejecucion-activa {
+    background: #eff6ff;
+    border-color: #2563eb;
+}
+
+.ejecucion-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    gap: 3px;
+}
+
+.ejecucion-info strong {
+    color: #111;
+}
+
+.ejecucion-info span {
+    color: #666;
+}
+
+.detalle-ejec {
+    margin-top: 15px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+/* --- Seccion de requerimientos --- */
+
+.seccion-requerimientos {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.formulario-req {
+    max-width: 600px;
+}
+
+.tabla-contenedor {
+    overflow-x: auto;
+}
+
+.tabla-requerimientos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.tabla-requerimientos th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tabla-requerimientos td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #111;
+}
+
+.fila-req {
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.fila-req:hover {
+    background: #f9fafb;
+}
+
+.fila-activa {
+    background: #eff6ff;
+}
+
+.codigo {
+    font-family: monospace;
+    font-size: 12px;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.badge-tipo {
+    background: #475569;
+}
+
+.select-estado {
+    padding: 3px 6px;
+    font-size: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.td-criterios {
+    text-align: center;
+    color: #666;
+}
+
+/* --- Detalle del requerimiento --- */
+
+.detalle-req {
+    margin-top: 16px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.req-descripcion {
+    font-size: 13px;
+    color: #444;
+    margin: 8px 0 16px;
+    line-height: 1.5;
+}
+
+.criterios-seccion {
+    margin-top: 8px;
+}
+
+.lista-criterios {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.criterio-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: #f9fafb;
+    border: 1px solid #f3f4f6;
+    border-radius: 6px;
+}
+
+.criterio-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+}
+
+.criterio-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #2563eb;
+}
+
+.criterio-cumplido {
+    text-decoration: line-through;
+    color: #999;
 }

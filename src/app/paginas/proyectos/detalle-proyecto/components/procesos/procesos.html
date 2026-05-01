@@ -148,7 +148,8 @@
         } @else {
         <ul class="lista">
             @for (tec of subprocesoSeleccionado()!.tecnicas; track tec.id) {
-            <li class="lista-item">
+            <li class="lista-item" [class.item-activo]="tecnicaParaReqs()?.id === tec.id"
+                (click)="seleccionarTecnicaParaReqs(tec)">
                 <div class="lista-info">
                     <span class="lista-nombre">{{ tec.nombre }}</span>
                     <span class="lista-detalle">{{ tec.categoria }}</span>
@@ -156,7 +157,7 @@
                     <span class="lista-detalle">{{ tec.notas }}</span>
                     }
                 </div>
-                <button class="boton-eliminar" (click)="quitarTecnica(tec)">Quitar</button>
+                <button class="boton-eliminar" (click)="quitarTecnica(tec); $event.stopPropagation()">Quitar</button>
             </li>
             }
         </ul>
@@ -167,3 +168,327 @@
     </div>
 
 </div>
+
+<!-- SECCION: Ejecuciones de la tecnica seleccionada -->
+@if (tecnicaParaReqs()) {
+<div class="seccion-ejecuciones">
+    <div class="seccion-header">
+        <h3>Ejecuciones - {{ tecnicaParaReqs()!.nombre }}</h3>
+        <button class="boton-agregar" (click)="mostrarFormEjecucion.set(true)">+ Nueva Ejecucion</button>
+    </div>
+
+    @if (mostrarFormEjecucion()) {
+    <div class="formulario formulario-req">
+        @if (errorEjecucion()) { <div class="error">{{ errorEjecucion() }}</div> }
+        
+        <div class="campo">
+            <label>Participantes</label>
+            <input type="text" placeholder="Ej: Juan Perez (PO), Ana (Dev)" [ngModel]="nuevaEjecucion().participantes"
+                (ngModelChange)="nuevaEjecucion.set({participantes: $event, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" />
+        </div>
+        
+        <!-- Formularios dinamicos basados en la categoria de la tecnica -->
+        <div class="datos-dinamicos">
+            @switch (tecnicaParaReqs()!.categoria) {
+                
+                @case ('entrevista') {
+                    <h4>Preguntas y Respuestas</h4>
+                    @for (item of nuevaEjecucion().datos.preguntas; track $index) {
+                        <div class="campo-dinamico">
+                            <input type="text" placeholder="Pregunta" [ngModel]="item.pregunta"
+                                (ngModelChange)="item.pregunta = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" />
+                            <textarea rows="2" placeholder="Respuesta" [ngModel]="item.respuesta"
+                                (ngModelChange)="item.respuesta = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})"></textarea>
+                            <button class="boton-eliminar" (click)="eliminarPregunta($index)">x</button>
+                        </div>
+                    }
+                    <button class="boton-agregar-dinamico" (click)="agregarPregunta()">+ Agregar Pregunta</button>
+                }
+
+                @case ('cuestionario') {
+                    <h4>Cuestionario</h4>
+                    @for (item of nuevaEjecucion().datos.preguntas; track $index) {
+                        <div class="campo-dinamico">
+                            <input type="text" placeholder="Pregunta" [ngModel]="item.pregunta"
+                                (ngModelChange)="item.pregunta = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" />
+                            <select [ngModel]="item.tipo" (ngModelChange)="item.tipo = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})">
+                                <option value="abierta">Abierta</option>
+                                <option value="cerrada">Cerrada / Multiples opciones</option>
+                            </select>
+                            <textarea rows="2" placeholder="Respuesta obtenida" [ngModel]="item.respuesta"
+                                (ngModelChange)="item.respuesta = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})"></textarea>
+                            <button class="boton-eliminar" (click)="eliminarPregunta($index)">x</button>
+                        </div>
+                    }
+                    <button class="boton-agregar-dinamico" (click)="agregarPregunta()">+ Agregar Pregunta</button>
+                }
+
+                @case ('observacion') {
+                    <h4>Contexto y Hallazgos</h4>
+                    <div class="campo">
+                        <label>Contexto de la observacion</label>
+                        <textarea rows="2" [ngModel]="nuevaEjecucion().datos.contexto"
+                            (ngModelChange)="nuevaEjecucion().datos.contexto = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})"></textarea>
+                    </div>
+                    @for (item of nuevaEjecucion().datos.hallazgos; track $index) {
+                        <div class="campo-dinamico">
+                            <input type="text" placeholder="Hallazgo / Anomalia detectada" [ngModel]="item.descripcion"
+                                (ngModelChange)="item.descripcion = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" />
+                            <button class="boton-eliminar" (click)="eliminarHallazgo($index)">x</button>
+                        </div>
+                    }
+                    <button class="boton-agregar-dinamico" (click)="agregarHallazgo()">+ Agregar Hallazgo</button>
+                }
+
+                @case ('brainstorming') {
+                    <h4>Lluvia de Ideas</h4>
+                    @for (item of nuevaEjecucion().datos.ideas; track $index) {
+                        <div class="campo-dinamico">
+                            <input type="text" placeholder="Idea aportada" [ngModel]="item.descripcion"
+                                (ngModelChange)="item.descripcion = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" />
+                            <input type="number" placeholder="Votos" [ngModel]="item.votos"
+                                (ngModelChange)="item.votos = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" style="width: 80px;" />
+                            <button class="boton-eliminar" (click)="eliminarIdea($index)">x</button>
+                        </div>
+                    }
+                    <button class="boton-agregar-dinamico" (click)="agregarIdea()">+ Agregar Idea</button>
+                }
+
+                @case ('analisis_documental') {
+                    <h4>Documentos Analizados</h4>
+                    @for (item of nuevaEjecucion().datos.documentos; track $index) {
+                        <div class="campo-dinamico">
+                            <input type="text" placeholder="Titulo del documento" [ngModel]="item.titulo"
+                                (ngModelChange)="item.titulo = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" />
+                            <textarea rows="2" placeholder="Puntos clave extraidos" [ngModel]="item.puntos_clave"
+                                (ngModelChange)="item.puntos_clave = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})"></textarea>
+                            <button class="boton-eliminar" (click)="eliminarDocumento($index)">x</button>
+                        </div>
+                    }
+                    <button class="boton-agregar-dinamico" (click)="agregarDocumento()">+ Agregar Documento</button>
+                }
+
+                @case ('casos_de_uso') {
+                    <h4>Escenarios y Flujos</h4>
+                    <div class="campo">
+                        <label>Actores Involucrados</label>
+                        <input type="text" [ngModel]="nuevaEjecucion().datos.actores"
+                            (ngModelChange)="nuevaEjecucion().datos.actores = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" />
+                    </div>
+                    <div class="campo">
+                        <label>Precondiciones</label>
+                        <textarea rows="2" [ngModel]="nuevaEjecucion().datos.precondiciones"
+                            (ngModelChange)="nuevaEjecucion().datos.precondiciones = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})"></textarea>
+                    </div>
+                    <div class="campo">
+                        <label>Flujo Principal</label>
+                        <textarea rows="3" placeholder="Paso a paso..." [ngModel]="nuevaEjecucion().datos.flujo_principal"
+                            (ngModelChange)="nuevaEjecucion().datos.flujo_principal = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})"></textarea>
+                    </div>
+                }
+
+                @case ('prototipado') {
+                    <h4>Feedback del Prototipo</h4>
+                    <div class="campo">
+                        <label>URL / Referencia del Prototipo</label>
+                        <input type="text" [ngModel]="nuevaEjecucion().datos.urls"
+                            (ngModelChange)="nuevaEjecucion().datos.urls = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})" />
+                    </div>
+                    <div class="campo">
+                        <label>Feedback de los stakeholders</label>
+                        <textarea rows="3" [ngModel]="nuevaEjecucion().datos.feedback"
+                            (ngModelChange)="nuevaEjecucion().datos.feedback = $event; nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: nuevaEjecucion().notas, datos: nuevaEjecucion().datos})"></textarea>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="campo" style="margin-top: 15px;">
+            <label>Notas adicionales</label>
+            <textarea rows="2" [ngModel]="nuevaEjecucion().notas"
+                (ngModelChange)="nuevaEjecucion.set({participantes: nuevaEjecucion().participantes, notas: $event, datos: nuevaEjecucion().datos})"></textarea>
+        </div>
+
+        <div class="formulario-acciones">
+            <button class="boton-cancelar" (click)="cancelarEjecucion()">Cancelar</button>
+            <button class="boton-guardar" (click)="agregarEjecucion()">Guardar</button>
+        </div>
+    </div>
+    }
+
+    @if (ejecuciones().length === 0) {
+    <p class="mensaje-vacio">No hay ejecuciones registradas.</p>
+    } @else {
+    <ul class="lista-ejecuciones">
+        @for (ejec of ejecuciones(); track ejec.id) {
+        <li class="ejecucion-item" [class.ejecucion-activa]="ejecucionDetalle()?.id === ejec.id" (click)="verDetalleEjecucion(ejec)">
+            <div class="ejecucion-info">
+                <strong>{{ ejec.fecha_ejecucion }}</strong>
+                @if (ejec.participantes) {
+                <span>Participantes: {{ ejec.participantes }}</span>
+                }
+            </div>
+            <button class="boton-eliminar" (click)="eliminarEjecucion(ejec); $event.stopPropagation()">Eliminar</button>
+        </li>
+        }
+    </ul>
+    }
+</div>
+
+@if (ejecucionDetalle()) {
+<div class="detalle-ejec">
+    <div class="seccion-header">
+        <h4>Detalle de la Ejecucion</h4>
+        <button class="boton-cancelar" (click)="cerrarDetalleEjecucion()">Cerrar</button>
+    </div>
+    <pre style="font-size: 11px; background: #f9fafb; padding: 10px; border-radius: 4px; overflow-x: auto;">{{ ejecucionDetalle()!.datos | json }}</pre>
+</div>
+}
+
+<!-- SECCION: Requerimientos de la tecnica seleccionada -->
+<div class="seccion-requerimientos" style="margin-top: 30px;">
+    <div class="seccion-header">
+        <h3>Requerimientos - {{ tecnicaParaReqs()!.nombre }}</h3>
+        <button class="boton-agregar" (click)="mostrarFormRequerimiento.set(true)">+ Nuevo</button>
+    </div>
+
+    @if (mostrarFormRequerimiento()) {
+    <div class="formulario formulario-req">
+        @if (errorRequerimiento()) { <div class="error">{{ errorRequerimiento() }}</div> }
+        <div class="campo">
+            <label>Titulo</label>
+            <input type="text" placeholder="Titulo del requerimiento" [ngModel]="nuevoRequerimiento().titulo"
+                (ngModelChange)="nuevoRequerimiento.set({titulo: $event, descripcion: nuevoRequerimiento().descripcion, tipo: nuevoRequerimiento().tipo, prioridad: nuevoRequerimiento().prioridad})" />
+        </div>
+        <div class="campo">
+            <label>Descripcion</label>
+            <textarea rows="2" placeholder="Descripcion detallada" [ngModel]="nuevoRequerimiento().descripcion"
+                (ngModelChange)="nuevoRequerimiento.set({titulo: nuevoRequerimiento().titulo, descripcion: $event, tipo: nuevoRequerimiento().tipo, prioridad: nuevoRequerimiento().prioridad})"></textarea>
+        </div>
+        <div class="campo-fila">
+            <div class="campo">
+                <label>Tipo</label>
+                <select [ngModel]="nuevoRequerimiento().tipo"
+                    (ngModelChange)="nuevoRequerimiento.set({titulo: nuevoRequerimiento().titulo, descripcion: nuevoRequerimiento().descripcion, tipo: $event, prioridad: nuevoRequerimiento().prioridad})">
+                    <option value="funcional">Funcional</option>
+                    <option value="no_funcional">No funcional</option>
+                    <option value="restriccion">Restriccion</option>
+                    <option value="regla_negocio">Regla de negocio</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Prioridad</label>
+                <select [ngModel]="nuevoRequerimiento().prioridad"
+                    (ngModelChange)="nuevoRequerimiento.set({titulo: nuevoRequerimiento().titulo, descripcion: nuevoRequerimiento().descripcion, tipo: nuevoRequerimiento().tipo, prioridad: $event})">
+                    <option value="critica">Critica</option>
+                    <option value="alta">Alta</option>
+                    <option value="media">Media</option>
+                    <option value="baja">Baja</option>
+                </select>
+            </div>
+        </div>
+        <div class="formulario-acciones">
+            <button class="boton-cancelar" (click)="cancelarRequerimiento()">Cancelar</button>
+            <button class="boton-guardar" (click)="agregarRequerimiento()">Guardar</button>
+        </div>
+    </div>
+    }
+
+    @if (requerimientos().length === 0) {
+    <p class="mensaje-vacio">Sin requerimientos capturados.</p>
+    } @else {
+    <div class="tabla-contenedor">
+        <table class="tabla-requerimientos">
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Titulo</th>
+                    <th>Tipo</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Criterios</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (req of requerimientos(); track req.id) {
+                <tr class="fila-req" [class.fila-activa]="requerimientoDetalle()?.id === req.id"
+                    (click)="verDetalleRequerimiento(req)">
+                    <td><span class="codigo">{{ req.codigo }}</span></td>
+                    <td>{{ req.titulo }}</td>
+                    <td><span class="badge badge-tipo">{{ req.tipo }}</span></td>
+                    <td><span class="badge" [style.background]="colorPrioridad(req.prioridad)">{{ req.prioridad }}</span></td>
+                    <td>
+                        <select class="select-estado" [ngModel]="req.estado"
+                            (ngModelChange)="actualizarEstadoRequerimiento(req, $event)"
+                            (click)="$event.stopPropagation()">
+                            <option value="borrador">Borrador</option>
+                            <option value="propuesto">Propuesto</option>
+                            <option value="aprobado">Aprobado</option>
+                            <option value="rechazado">Rechazado</option>
+                        </select>
+                    </td>
+                    <td class="td-criterios">{{ req.criterios.length }}</td>
+                    <td>
+                        <button class="boton-eliminar" (click)="eliminarRequerimiento(req); $event.stopPropagation()">x</button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>
+}
+
+<!-- DETALLE del requerimiento seleccionado -->
+@if (requerimientoDetalle()) {
+<div class="detalle-req">
+    <div class="seccion-header">
+        <h3>{{ requerimientoDetalle()!.codigo }} - {{ requerimientoDetalle()!.titulo }}</h3>
+        <button class="boton-cancelar" (click)="cerrarDetalle()">Cerrar</button>
+    </div>
+
+    @if (requerimientoDetalle()!.descripcion) {
+    <p class="req-descripcion">{{ requerimientoDetalle()!.descripcion }}</p>
+    }
+
+    <div class="criterios-seccion">
+        <div class="seccion-header">
+            <h4>Criterios de aceptacion</h4>
+            <button class="boton-agregar" (click)="mostrarFormCriterio.set(true)">+ Agregar</button>
+        </div>
+
+        @if (mostrarFormCriterio()) {
+        <div class="formulario">
+            @if (errorCriterio()) { <div class="error">{{ errorCriterio() }}</div> }
+            <div class="campo">
+                <label>Descripcion</label>
+                <input type="text" placeholder="Criterio de aceptacion" [ngModel]="nuevoCriterio()"
+                    (ngModelChange)="nuevoCriterio.set($event)" />
+            </div>
+            <div class="formulario-acciones">
+                <button class="boton-cancelar" (click)="cancelarCriterio()">Cancelar</button>
+                <button class="boton-guardar" (click)="agregarCriterio()">Guardar</button>
+            </div>
+        </div>
+        }
+
+        @if (requerimientoDetalle()!.criterios.length === 0) {
+        <p class="mensaje-vacio">Sin criterios.</p>
+        } @else {
+        <ul class="lista-criterios">
+            @for (criterio of requerimientoDetalle()!.criterios; track criterio.id) {
+            <li class="criterio-item">
+                <label class="criterio-check">
+                    <input type="checkbox" [checked]="criterio.cumplido" (change)="toggleCriterio(criterio)" />
+                    <span [class.criterio-cumplido]="criterio.cumplido">{{ criterio.descripcion }}</span>
+                </label>
+                <button class="boton-eliminar" (click)="eliminarCriterio(criterio)">x</button>
+            </li>
+            }
+        </ul>
+        }
+    </div>
+</div>
+}
