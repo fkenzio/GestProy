@@ -1,69 +1,72 @@
 .crear-contenedor {
     min-height: 100vh;
-    background-color: #f5f5f5;
+    background-color: var(--color-bg-body);
     display: flex;
     justify-content: center;
     padding: 48px 16px;
 }
 
 .crear-tarjeta {
-    background: #fff;
+    background: var(--color-bg-card);
     padding: 32px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     width: 100%;
     max-width: 500px;
     height: fit-content;
 }
 
 .crear-tarjeta h2 {
-    font-size: 20px;
-    font-weight: 600;
-    color: #111;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-main);
     margin: 0 0 24px;
+    letter-spacing: -0.5px;
 }
 
 .crear-error {
-    background: #fef2f2;
-    color: #b91c1c;
-    padding: 10px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    margin-bottom: 16px;
-    border: 1px solid #fecaca;
+    background: var(--color-danger-light);
+    color: var(--color-danger-hover);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .campo {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
 }
 
 .campo label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    color: #333;
-    margin-bottom: 6px;
+    color: var(--color-text-main);
+    margin-bottom: 8px;
 }
 
 .campo input,
 .campo textarea,
 .campo select {
-    padding: 10px 12px;
-    font-size: 14px;
+    padding: 12px 16px;
+    font-size: 15px;
     font-family: inherit;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s;
+    background: var(--color-bg-card);
+    transition: all var(--transition-fast);
     width: 100%;
 }
 
 .campo input:focus,
 .campo textarea:focus,
 .campo select:focus {
-    border-color: #2563eb;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-focus-ring);
 }
 
 .campo textarea {
@@ -71,13 +74,12 @@
 }
 
 .campo select {
-    background: #fff;
     cursor: pointer;
 }
 
 .campo-fila {
     display: flex;
-    gap: 12px;
+    gap: 16px;
 }
 
 .campo-fila .campo {
@@ -87,42 +89,51 @@
 .campo-acciones {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 24px;
+    gap: 12px;
+    margin-top: 32px;
 }
 
 .boton-cancelar {
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 10px 20px;
+    font-size: 14px;
     font-weight: 500;
-    color: #666;
-    background: none;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
+    transition: all var(--transition-fast);
 }
 
 .boton-cancelar:hover {
-    background: #f9fafb;
-    color: #111;
+    background: var(--color-bg-body);
+    color: var(--color-text-main);
 }
 
 .boton-guardar {
-    padding: 8px 20px;
-    font-size: 13px;
-    font-weight: 500;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
     color: #fff;
-    background-color: #2563eb;
+    background: var(--color-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
 }
 
-.boton-guardar:hover {
-    background-color: #1d4ed8;
+.boton-guardar:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.boton-guardar:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .boton-guardar:disabled {
-    background-color: #93c5fd;
+    opacity: 0.7;
     cursor: not-allowed;
 }

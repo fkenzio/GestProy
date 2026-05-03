@@ -3,71 +3,73 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(145deg, #eef1f5 0%, #e2e6ee 100%);
+    background: var(--color-bg-body);
+    padding: 20px;
 }
 
 .registro-tarjeta {
-    background: #fff;
+    background: var(--color-bg-card);
     padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     width: 100%;
-    max-width: 440px;
-    border-top: 3px solid #2563eb;
+    max-width: 480px;
 }
 
 .registro-tarjeta h1 {
-    margin: 0 0 4px;
-    font-size: 24px;
+    margin: 0 0 8px;
+    font-size: 28px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--color-text-main);
+    letter-spacing: -0.5px;
+    text-align: center;
 }
 
 .registro-tarjeta>p {
-    margin: 0 0 24px;
-    font-size: 14px;
-    color: #6b7280;
+    margin: 0 0 32px;
+    font-size: 15px;
+    color: var(--color-text-muted);
+    text-align: center;
 }
 
 .registro-error {
-    background: #fef2f2;
-    color: #b91c1c;
-    padding: 10px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    margin-bottom: 16px;
-    border: 1px solid #fecaca;
+    background: var(--color-danger-light);
+    color: var(--color-danger-hover);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .campo {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
 }
 
 .campo label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    color: #374151;
-    margin-bottom: 6px;
+    color: var(--color-text-main);
+    margin-bottom: 8px;
 }
 
 .campo input {
-    padding: 10px 12px;
-    font-size: 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 15px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     outline: none;
     box-sizing: border-box;
-    background: #f9fafb;
-    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    background: var(--color-bg-card);
+    transition: all var(--transition-fast);
     width: 100%;
 }
 
 .campo input:focus {
-    border-color: #2563eb;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-focus-ring);
 }
 
 .campo input::placeholder {
@@ -76,7 +78,7 @@
 
 .campo-fila {
     display: flex;
-    gap: 12px;
+    gap: 16px;
 }
 
 .campo-fila .campo {
@@ -85,40 +87,49 @@
 
 .registro-boton {
     width: 100%;
-    padding: 11px;
-    font-size: 14px;
+    padding: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: #fff;
-    background: #2563eb;
+    background: var(--color-primary);
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    margin-top: 8px;
-    transition: background 0.2s;
+    margin-top: 12px;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
 }
 
-.registro-boton:hover {
-    background: #1d4ed8;
+.registro-boton:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.registro-boton:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .registro-boton:disabled {
-    background: #93c5fd;
+    opacity: 0.7;
     cursor: not-allowed;
 }
 
 .registro-link {
     text-align: center;
-    font-size: 13px;
-    color: #6b7280;
-    margin-top: 20px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+    margin-top: 24px;
 }
 
 .registro-link span {
-    color: #2563eb;
+    color: var(--color-primary);
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
+    transition: color var(--transition-fast);
 }
 
 .registro-link span:hover {
+    color: var(--color-primary-active);
     text-decoration: underline;
 }

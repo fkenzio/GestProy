@@ -1,78 +1,78 @@
 .seccion {
-    margin-bottom: 32px;
+    margin-bottom: 40px;
 }
 
 .seccion-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .seccion-header h3 {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--color-text-main);
     margin: 0;
 }
 
+/* Secondary Button Outline */
 .boton-agregar {
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #2563eb;
-    background: none;
-    border: 1px solid #2563eb;
-    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all var(--transition-fast);
 }
 
 .boton-agregar:hover {
-    background: #eff6ff;
+    background: var(--color-primary-light);
+    color: var(--color-primary-active);
 }
 
 .formulario {
-    background: #fff;
-    border: 1px solid #e0e3ea;
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-md);
 }
 
 .campo {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     display: flex;
     flex-direction: column;
 }
 
 .campo label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    color: #374151;
-    margin-bottom: 4px;
+    color: var(--color-text-main);
+    margin-bottom: 6px;
 }
 
 .campo input,
 .campo select {
-    padding: 8px 10px;
+    padding: 10px 14px;
     font-size: 14px;
-    font-family: inherit;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     outline: none;
-    width: 100%;
     box-sizing: border-box;
-    background: #f9fafb;
-    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    background: var(--color-bg-body);
+    transition: all var(--transition-fast);
 }
 
 .campo input:focus,
 .campo select:focus {
-    border-color: #2563eb;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    border-color: var(--color-primary);
+    background: var(--color-bg-card);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .campo select {
@@ -82,49 +82,55 @@
 .formulario-acciones {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-    margin-top: 4px;
+    gap: 12px;
+    margin-top: 24px;
 }
 
+/* Neutral Button */
 .boton-cancelar {
-    padding: 6px 14px;
-    font-size: 13px;
-    color: #6b7280;
-    background: none;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all var(--transition-fast);
 }
 
 .boton-cancelar:hover {
-    background: #f3f4f6;
+    background: var(--color-bg-body);
+    color: var(--color-text-main);
 }
 
+/* Primary Button */
 .boton-guardar {
-    padding: 6px 14px;
-    font-size: 13px;
+    padding: 8px 20px;
+    font-size: 14px;
     font-weight: 600;
     color: #fff;
-    background: #2563eb;
+    background: var(--color-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
 }
 
 .boton-guardar:hover {
-    background: #1d4ed8;
+    background: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
 }
 
 .error {
-    background: #fef2f2;
-    color: #b91c1c;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    margin-bottom: 12px;
-    border: 1px solid #fecaca;
+    background: var(--color-danger-light);
+    color: var(--color-danger-hover);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .lista {
@@ -133,83 +139,91 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px;
 }
 
 .lista-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
-    background: #fff;
-    border: 1px solid #e0e3ea;
-    border-radius: 10px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-    transition: border-color 0.15s;
+    padding: 16px 20px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
 }
 
 .lista-item:hover {
-    border-color: #c7d2e0;
+    border-color: var(--color-border-hover);
+    box-shadow: var(--shadow-md);
 }
 
 .lista-info {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
 .lista-nombre {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
-    color: #1a1a2e;
+    color: var(--color-text-main);
 }
 
 .lista-detalle {
-    font-size: 12px;
-    color: #6b7280;
+    font-size: 13px;
+    color: var(--color-text-muted);
 }
 
 .lista-acciones {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .etiqueta-fijo {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 10px;
-    background: #f3f4f6;
-    color: #6b7280;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--color-bg-body);
+    color: var(--color-text-muted);
 }
 
 .etiqueta-rol {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 10px;
-    background: #dbeafe;
-    color: #1d4ed8;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-light);
+    color: var(--color-primary-active);
 }
 
+/* Danger Button Text */
 .boton-eliminar {
-    font-size: 12px;
-    color: #ef4444;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-danger);
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0;
-    transition: color 0.15s;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
 }
 
 .boton-eliminar:hover {
-    color: #dc2626;
+    color: var(--color-danger-hover);
+    background: var(--color-danger-light);
 }
 
 .mensaje-vacio {
     font-size: 14px;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     text-align: center;
-    padding: 32px 0;
+    padding: 40px 0;
+    background: var(--color-bg-card);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-lg);
 }
