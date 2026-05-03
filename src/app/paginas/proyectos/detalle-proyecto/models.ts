@@ -107,3 +107,16 @@ export interface EjecucionTecnica {
     fecha_creacion: string;
     fecha_actualizacion: string;
 }
+
+export interface Diagrama {
+    id: number;
+    proyecto_id: number;
+    tipo: string;
+    nombre: string;
+    datos: any;
+    creado_por: number;
+    creado_por_nombre: string;
+    creado_por_apellido: string;
+    fecha_creacion: string;
+    fecha_actualizacion: string;
+}

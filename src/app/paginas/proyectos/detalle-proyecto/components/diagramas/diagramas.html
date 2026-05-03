@@ -1,0 +1,68 @@
+<div class="diagramas-contenedor">
+    <div class="seccion-header">
+        <h2>Diagramas del Proyecto</h2>
+        <button class="boton-agregar" (click)="abrirModal()">+ Crear Diagrama</button>
+    </div>
+
+    @if (diagramas().length === 0) {
+    <div class="estado-vacio">
+        <span class="icono-vacio">&#9634;</span>
+        <p>No hay diagramas creados.</p>
+        <p class="texto-secundario">Crea tu primer diagrama para comenzar a modelar el sistema.</p>
+    </div>
+    } @else {
+    <div class="grid-diagramas">
+        @for (d of diagramas(); track d.id) {
+        <div class="tarjeta-diagrama" (click)="abrirEditor(d)">
+            <div class="tarjeta-icono">
+                <span>&#9633;</span>
+            </div>
+            <div class="tarjeta-info">
+                <h3>{{ d.nombre }}</h3>
+                <span class="badge-tipo">{{ obtenerEtiquetaTipo(d.tipo) }}</span>
+                <p class="tarjeta-fecha">{{ d.fecha_actualizacion | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+            <button class="boton-eliminar-diagrama" (click)="eliminarDiagrama(d, $event)">&#10005;</button>
+        </div>
+        }
+    </div>
+    }
+</div>
+
+<!-- Modal para crear diagrama -->
+@if (mostrarModal()) {
+<div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-contenido" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Crear Nuevo Diagrama</h3>
+            <button class="boton-cerrar-modal" (click)="cerrarModal()">&#10005;</button>
+        </div>
+
+        @if (error()) { <div class="error">{{ error() }}</div> }
+
+        <div class="campo">
+            <label>Nombre del diagrama</label>
+            <input type="text" placeholder="Ej: Diagrama principal del sistema"
+                [ngModel]="nombreDiagrama()" (ngModelChange)="nombreDiagrama.set($event)" />
+        </div>
+
+        <div class="campo">
+            <label>Tipo de diagrama</label>
+            <div class="tipos-grid">
+                @for (tipo of tiposDisponibles; track tipo.clave) {
+                <div class="tipo-opcion" [class.tipo-seleccionado]="tipoDiagrama() === tipo.clave"
+                    (click)="tipoDiagrama.set(tipo.clave)">
+                    <span class="tipo-icono" [innerHTML]="tipo.icono"></span>
+                    <span class="tipo-etiqueta">{{ tipo.etiqueta }}</span>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div class="modal-acciones">
+            <button class="boton-cancelar" (click)="cerrarModal()">Cancelar</button>
+            <button class="boton-guardar" (click)="crearDiagrama()">Crear y Abrir Editor</button>
+        </div>
+    </div>
+</div>
+}

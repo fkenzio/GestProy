@@ -19,6 +19,11 @@ export const routes: Routes = [
         loadComponent: () => import('./paginas/proyectos/detalle-proyecto/detalle-proyecto').then(m => m.DetalleProyectoComponent),
         canActivate: [authGuard]
     },
+    {
+        path: 'proyectos/:id/diagrama/:diagramaId',
+        loadComponent: () => import('./paginas/editor-diagrama/editor-diagrama').then(m => m.EditorDiagramaComponent),
+        canActivate: [authGuard]
+    },
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: '**', redirectTo: 'login' }
 ];

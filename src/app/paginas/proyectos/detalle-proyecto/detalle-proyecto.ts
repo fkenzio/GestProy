@@ -5,12 +5,13 @@ import { ResumenComponent } from './components/resumen/resumen';
 import { MiembrosComponent } from './components/miembros/miembros';
 import { StakeholdersComponent } from './components/stakeholders/stakeholders';
 import { ProcesosComponent } from './components/procesos/procesos';
+import { DiagramasComponent } from './components/diagramas/diagramas';
 import { ProyectoService } from '../../../compartidos/servicios/proyecto.service';
 
 @Component({
     selector: 'app-detalle-proyecto',
     standalone: true,
-    imports: [ResumenComponent, MiembrosComponent, StakeholdersComponent, ProcesosComponent],
+    imports: [ResumenComponent, MiembrosComponent, StakeholdersComponent, ProcesosComponent, DiagramasComponent],
     templateUrl: './detalle-proyecto.html',
     styleUrl: './detalle-proyecto.css'
 })
@@ -24,7 +25,8 @@ export class DetalleProyectoComponent {
         { clave: 'resumen', etiqueta: 'Resumen' },
         { clave: 'miembros', etiqueta: 'Miembros / Roles' },
         { clave: 'stakeholders', etiqueta: 'Stakeholders' },
-        { clave: 'procesos', etiqueta: 'Procesos y Subprocesos' }
+        { clave: 'procesos', etiqueta: 'Procesos y Subprocesos' },
+        { clave: 'diagramas', etiqueta: 'Diagramas' }
     ];
 
     constructor(
