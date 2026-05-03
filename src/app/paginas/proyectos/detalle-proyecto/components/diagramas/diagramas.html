@@ -6,7 +6,7 @@
 
     @if (diagramas().length === 0) {
     <div class="estado-vacio">
-        <span class="icono-vacio">&#9634;</span>
+        <svg width="48" height="48" viewBox="0 0 48 48"><rect x="4" y="4" width="40" height="40" rx="4" fill="none" stroke="#d1d5db" stroke-width="2"/><line x1="4" y1="18" x2="44" y2="18" stroke="#d1d5db" stroke-width="1.5"/><line x1="4" y1="30" x2="44" y2="30" stroke="#d1d5db" stroke-width="1.5"/></svg>
         <p>No hay diagramas creados.</p>
         <p class="texto-secundario">Crea tu primer diagrama para comenzar a modelar el sistema.</p>
     </div>
@@ -15,7 +15,7 @@
         @for (d of diagramas(); track d.id) {
         <div class="tarjeta-diagrama" (click)="abrirEditor(d)">
             <div class="tarjeta-icono">
-                <span>&#9633;</span>
+                <svg width="24" height="24" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="9" x2="22" y2="9" stroke="currentColor" stroke-width="1"/><line x1="2" y1="15" x2="22" y2="15" stroke="currentColor" stroke-width="1"/></svg>
             </div>
             <div class="tarjeta-info">
                 <h3>{{ d.nombre }}</h3>
@@ -52,7 +52,7 @@
                 @for (tipo of tiposDisponibles; track tipo.clave) {
                 <div class="tipo-opcion" [class.tipo-seleccionado]="tipoDiagrama() === tipo.clave"
                     (click)="tipoDiagrama.set(tipo.clave)">
-                    <span class="tipo-icono" [innerHTML]="tipo.icono"></span>
+                    <svg width="22" height="22" viewBox="0 0 22 22"><rect x="1" y="1" width="20" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="21" y2="8" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="21" y2="14" stroke="currentColor" stroke-width="1"/></svg>
                     <span class="tipo-etiqueta">{{ tipo.etiqueta }}</span>
                 </div>
                 }

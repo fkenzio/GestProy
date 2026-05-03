@@ -23,7 +23,7 @@ export class DiagramasComponent {
     error = signal('');
 
     tiposDisponibles = [
-        { clave: 'clases', etiqueta: 'Diagrama de Clases', icono: '&#9633;' }
+        { clave: 'clases', etiqueta: 'Diagrama de Clases', icono: 'clases' }
     ];
 
     constructor(
