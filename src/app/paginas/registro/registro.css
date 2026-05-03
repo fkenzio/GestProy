@@ -3,29 +3,30 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f5f5f5;
+    background: linear-gradient(145deg, #eef1f5 0%, #e2e6ee 100%);
 }
 
 .registro-tarjeta {
     background: #fff;
     padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
     width: 100%;
     max-width: 440px;
+    border-top: 3px solid #2563eb;
 }
 
 .registro-tarjeta h1 {
     margin: 0 0 4px;
     font-size: 24px;
-    font-weight: 600;
-    color: #111;
+    font-weight: 700;
+    color: #1a1a2e;
 }
 
 .registro-tarjeta>p {
     margin: 0 0 24px;
     font-size: 14px;
-    color: #666;
+    color: #6b7280;
 }
 
 .registro-error {
@@ -47,7 +48,7 @@
 .campo label {
     font-size: 13px;
     font-weight: 500;
-    color: #333;
+    color: #374151;
     margin-bottom: 6px;
 }
 
@@ -55,15 +56,18 @@
     padding: 10px 12px;
     font-size: 14px;
     border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border-radius: 8px;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s;
+    background: #f9fafb;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     width: 100%;
 }
 
 .campo input:focus {
     border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .campo input::placeholder {
@@ -81,32 +85,32 @@
 
 .registro-boton {
     width: 100%;
-    padding: 10px;
+    padding: 11px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     color: #fff;
-    background-color: #2563eb;
+    background: #2563eb;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     margin-top: 8px;
-    transition: background-color 0.2s;
+    transition: background 0.2s;
 }
 
 .registro-boton:hover {
-    background-color: #1d4ed8;
+    background: #1d4ed8;
 }
 
 .registro-boton:disabled {
-    background-color: #93c5fd;
+    background: #93c5fd;
     cursor: not-allowed;
 }
 
 .registro-link {
     text-align: center;
     font-size: 13px;
-    color: #666;
-    margin-top: 16px;
+    color: #6b7280;
+    margin-top: 20px;
 }
 
 .registro-link span {
@@ -116,5 +120,5 @@
 }
 
 .registro-link span:hover {
-    color: #1d4ed8;
+    text-decoration: underline;
 }

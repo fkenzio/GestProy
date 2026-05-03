@@ -11,8 +11,8 @@
 
 .seccion-header h3 {
     font-size: 16px;
-    font-weight: 600;
-    color: #111;
+    font-weight: 700;
+    color: #1a1a2e;
     margin: 0;
 }
 
@@ -25,6 +25,7 @@
     border: 1px solid #2563eb;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.15s;
 }
 
 .boton-agregar:hover {
@@ -33,10 +34,11 @@
 
 .formulario {
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border: 1px solid #e0e3ea;
+    border-radius: 10px;
     padding: 16px;
     margin-bottom: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .campo {
@@ -48,7 +50,7 @@
 .campo label {
     font-size: 13px;
     font-weight: 500;
-    color: #333;
+    color: #374151;
     margin-bottom: 4px;
 }
 
@@ -59,20 +61,23 @@
     font-size: 14px;
     font-family: inherit;
     border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border-radius: 8px;
     outline: none;
     width: 100%;
     box-sizing: border-box;
+    background: #f9fafb;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .campo input:focus,
 .campo select:focus,
 .campo textarea:focus {
     border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .campo select {
-    background: #fff;
     cursor: pointer;
 }
 
@@ -99,26 +104,28 @@
 .boton-cancelar {
     padding: 6px 14px;
     font-size: 13px;
-    color: #666;
+    color: #6b7280;
     background: none;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.15s;
 }
 
 .boton-cancelar:hover {
-    background: #f9fafb;
+    background: #f3f4f6;
 }
 
 .boton-guardar {
     padding: 6px 14px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: #fff;
     background: #2563eb;
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.15s;
 }
 
 .boton-guardar:hover {
@@ -150,8 +157,14 @@
     align-items: center;
     padding: 12px 16px;
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border: 1px solid #e0e3ea;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.15s;
+}
+
+.lista-item:hover {
+    border-color: #c7d2e0;
 }
 
 .lista-info {
@@ -162,13 +175,13 @@
 
 .lista-nombre {
     font-size: 14px;
-    font-weight: 500;
-    color: #111;
+    font-weight: 600;
+    color: #1a1a2e;
 }
 
 .lista-detalle {
     font-size: 12px;
-    color: #666;
+    color: #6b7280;
 }
 
 .lista-acciones {
@@ -179,11 +192,11 @@
 
 .etiqueta-tipo {
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     padding: 3px 8px;
-    border-radius: 4px;
+    border-radius: 10px;
     background: #f3f4f6;
-    color: #666;
+    color: #6b7280;
     text-transform: capitalize;
 }
 
@@ -209,11 +222,11 @@
 
 .etiqueta-nivel {
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     padding: 3px 8px;
-    border-radius: 4px;
+    border-radius: 10px;
     background: #f3f4f6;
-    color: #666;
+    color: #6b7280;
     text-transform: capitalize;
 }
 
@@ -229,7 +242,7 @@
 
 .etiqueta-nivel[data-nivel="bajo"] {
     background: #f3f4f6;
-    color: #666;
+    color: #6b7280;
 }
 
 .boton-eliminar {
@@ -239,6 +252,7 @@
     border: none;
     cursor: pointer;
     padding: 0;
+    transition: color 0.15s;
 }
 
 .boton-eliminar:hover {
@@ -247,7 +261,7 @@
 
 .mensaje-vacio {
     font-size: 14px;
-    color: #999;
+    color: #9ca3af;
     text-align: center;
     padding: 32px 0;
 }

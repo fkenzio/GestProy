@@ -1,8 +1,9 @@
 .pestana-vacia {
     padding: 2rem;
     text-align: center;
-    color: #666;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    color: #6b7280;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e0e3ea;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }

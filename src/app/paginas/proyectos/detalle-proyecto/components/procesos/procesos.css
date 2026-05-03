@@ -18,15 +18,15 @@
 
 .seccion-header h3 {
     font-size: 15px;
-    font-weight: 600;
-    color: #111;
+    font-weight: 700;
+    color: #1a1a2e;
     margin: 0;
 }
 
 .seccion-header h4 {
     font-size: 13px;
     font-weight: 600;
-    color: #333;
+    color: #374151;
     margin: 0;
 }
 
@@ -39,6 +39,7 @@
     border: 1px solid #2563eb;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.15s;
 }
 
 .boton-agregar:hover {
@@ -47,10 +48,11 @@
 
 .formulario {
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border: 1px solid #e0e3ea;
+    border-radius: 10px;
     padding: 12px;
     margin-bottom: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .campo {
@@ -62,7 +64,7 @@
 .campo label {
     font-size: 12px;
     font-weight: 500;
-    color: #333;
+    color: #374151;
     margin-bottom: 3px;
 }
 
@@ -77,16 +79,19 @@
     outline: none;
     width: 100%;
     box-sizing: border-box;
+    background: #f9fafb;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .campo input:focus,
 .campo select:focus,
 .campo textarea:focus {
     border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .campo select {
-    background: #fff;
     cursor: pointer;
 }
 
@@ -113,26 +118,28 @@
 .boton-cancelar {
     padding: 5px 12px;
     font-size: 12px;
-    color: #666;
+    color: #6b7280;
     background: none;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.15s;
 }
 
 .boton-cancelar:hover {
-    background: #f9fafb;
+    background: #f3f4f6;
 }
 
 .boton-guardar {
     padding: 5px 12px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     color: #fff;
     background: #2563eb;
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.15s;
 }
 
 .boton-guardar:hover {
@@ -164,10 +171,11 @@
     align-items: center;
     padding: 10px 12px;
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
+    border: 1px solid #e0e3ea;
+    border-radius: 8px;
     cursor: pointer;
-    transition: border-color 0.15s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.15s, background 0.15s;
 }
 
 .lista-item:hover {
@@ -188,13 +196,13 @@
 
 .lista-nombre {
     font-size: 13px;
-    font-weight: 500;
-    color: #111;
+    font-weight: 600;
+    color: #1a1a2e;
 }
 
 .lista-detalle {
     font-size: 11px;
-    color: #666;
+    color: #6b7280;
 }
 
 .boton-eliminar {
@@ -205,6 +213,7 @@
     cursor: pointer;
     padding: 0 4px;
     flex-shrink: 0;
+    transition: color 0.15s;
 }
 
 .boton-eliminar:hover {
@@ -213,7 +222,7 @@
 
 .mensaje-vacio {
     font-size: 13px;
-    color: #999;
+    color: #9ca3af;
     text-align: center;
     padding: 24px 0;
 }
@@ -223,21 +232,22 @@
 .seccion-ejecuciones {
     margin-top: 20px;
     padding-top: 16px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid #e0e3ea;
 }
 
 .datos-dinamicos {
     background: #f9fafb;
     padding: 12px;
-    border-radius: 6px;
+    border-radius: 8px;
     margin-top: 10px;
+    border: 1px solid #e0e3ea;
 }
 
 .datos-dinamicos h4 {
     margin-top: 0;
     margin-bottom: 10px;
     font-size: 13px;
-    color: #444;
+    color: #374151;
 }
 
 .campo-dinamico {
@@ -254,7 +264,16 @@
     padding: 6px;
     font-size: 12px;
     border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border-radius: 6px;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+
+.campo-dinamico input:focus,
+.campo-dinamico textarea:focus,
+.campo-dinamico select:focus {
+    border-color: #2563eb;
+    outline: none;
 }
 
 .boton-agregar-dinamico {
@@ -262,11 +281,12 @@
     border: 1px dashed #93c5fd;
     color: #2563eb;
     padding: 6px 10px;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 11px;
     cursor: pointer;
     width: 100%;
     margin-top: 5px;
+    transition: background 0.15s;
 }
 
 .boton-agregar-dinamico:hover {
@@ -288,9 +308,11 @@
     align-items: center;
     padding: 10px;
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
+    border: 1px solid #e0e3ea;
+    border-radius: 8px;
     cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.15s;
 }
 
 .ejecucion-item:hover {
@@ -310,19 +332,20 @@
 }
 
 .ejecucion-info strong {
-    color: #111;
+    color: #1a1a2e;
 }
 
 .ejecucion-info span {
-    color: #666;
+    color: #6b7280;
 }
 
 .detalle-ejec {
     margin-top: 15px;
     background: #fff;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e0e3ea;
     padding: 15px;
-    border-radius: 6px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 /* --- Seccion de requerimientos --- */
@@ -330,7 +353,7 @@
 .seccion-requerimientos {
     margin-top: 20px;
     padding-top: 16px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid #e0e3ea;
 }
 
 .formulario-req {
@@ -339,6 +362,10 @@
 
 .tabla-contenedor {
     overflow-x: auto;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e0e3ea;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .tabla-requerimientos {
@@ -349,18 +376,20 @@
 
 .tabla-requerimientos th {
     text-align: left;
-    padding: 8px 10px;
+    padding: 10px 12px;
     font-size: 11px;
     font-weight: 600;
-    color: #666;
+    color: #6b7280;
     text-transform: uppercase;
-    border-bottom: 2px solid #e5e7eb;
+    letter-spacing: 0.3px;
+    border-bottom: 2px solid #e0e3ea;
+    background: #f9fafb;
 }
 
 .tabla-requerimientos td {
-    padding: 8px 10px;
+    padding: 10px 12px;
     border-bottom: 1px solid #f3f4f6;
-    color: #111;
+    color: #1a1a2e;
 }
 
 .fila-req {
@@ -388,7 +417,7 @@
     padding: 2px 8px;
     border-radius: 10px;
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     color: #fff;
 }
 
@@ -400,14 +429,20 @@
     padding: 3px 6px;
     font-size: 12px;
     border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border-radius: 6px;
     background: #fff;
     cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.select-estado:focus {
+    border-color: #2563eb;
+    outline: none;
 }
 
 .td-criterios {
     text-align: center;
-    color: #666;
+    color: #6b7280;
 }
 
 /* --- Detalle del requerimiento --- */
@@ -416,13 +451,14 @@
     margin-top: 16px;
     padding: 16px;
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border: 1px solid #e0e3ea;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .req-descripcion {
     font-size: 13px;
-    color: #444;
+    color: #374151;
     margin: 8px 0 16px;
     line-height: 1.5;
 }
@@ -446,8 +482,13 @@
     align-items: center;
     padding: 8px 10px;
     background: #f9fafb;
-    border: 1px solid #f3f4f6;
-    border-radius: 6px;
+    border: 1px solid #e0e3ea;
+    border-radius: 8px;
+    transition: background 0.12s;
+}
+
+.criterio-item:hover {
+    background: #f3f4f6;
 }
 
 .criterio-check {
@@ -455,7 +496,7 @@
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    color: #333;
+    color: #374151;
     cursor: pointer;
 }
 
@@ -468,5 +509,5 @@
 
 .criterio-cumplido {
     text-decoration: line-through;
-    color: #999;
+    color: #9ca3af;
 }
