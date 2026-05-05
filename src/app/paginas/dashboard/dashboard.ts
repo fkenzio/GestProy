@@ -2,6 +2,7 @@ import { Component, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProyectoService } from '../../compartidos/servicios/proyecto.service';
 import { AuthService } from '../../compartidos/servicios/auth.service';
+import { TemaService } from '../../compartidos/servicios/tema.service';
 
 interface Proyecto {
     id: number;
@@ -23,8 +24,13 @@ export class DashboardComponent implements OnInit {
     constructor(
         private router: Router,
         private proyectoService: ProyectoService,
-        private authService: AuthService
+        private authService: AuthService,
+        private temaService: TemaService
     ) { }
+
+    get isDark() { return this.temaService.isDark; }
+
+    toggleTema() { this.temaService.toggle(); }
 
     ngOnInit(): void {
         this.cargarProyectos();

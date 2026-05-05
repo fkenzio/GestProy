@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../compartidos/servicios/auth.service';
+import { TemaService } from '../../compartidos/servicios/tema.service';
 
 @Component({
     selector: 'app-login',
@@ -16,7 +17,14 @@ export class LoginComponent {
     cargando = signal(false);
     error = signal('');
 
-    constructor(private router: Router, private authService: AuthService) { }
+    constructor(
+        private router: Router, 
+        private authService: AuthService,
+        private temaService: TemaService
+    ) { }
+
+    get isDark() { return this.temaService.isDark; }
+    toggleTema() { this.temaService.toggle(); }
 
     iniciarSesion(): void {
         this.error.set('');

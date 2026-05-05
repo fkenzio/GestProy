@@ -1,4 +1,12 @@
 .editor-contenedor {
+    /* Forzar modo claro para el dibujo */
+    --color-bg-body: #f3f4f6;
+    --color-bg-card: #ffffff;
+    --color-text-main: #111827;
+    --color-text-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-border-hover: #d1d5db;
+
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -200,7 +208,7 @@
 }
 
 .clase-rect {
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
 }
 
 .elemento-seleccionado .clase-rect {
@@ -211,7 +219,7 @@
 .elemento-conexion-origen .clase-rect {
     stroke: #059669;
     stroke-width: 2.5;
-    stroke-dasharray: 5,3;
+    stroke-dasharray: 5, 3;
 }
 
 .conexion-linea {
@@ -227,7 +235,8 @@
 .minimapa-contenedor {
     position: absolute;
     bottom: 20px;
-    left: 180px; /* offset from sidebar-herramientas (160px + 20px) */
+    left: 180px;
+    /* offset from sidebar-herramientas (160px + 20px) */
     width: 220px;
     height: 160px;
     background: #fff;
@@ -254,7 +263,8 @@
 .zoom-contenedor {
     position: absolute;
     bottom: 195px;
-    left: 180px; /* alineado con minimapa */
+    left: 180px;
+    /* alineado con minimapa */
     background: #ffffff;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
