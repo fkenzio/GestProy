@@ -23,7 +23,8 @@ export class DiagramasComponent {
     error = signal('');
 
     tiposDisponibles = [
-        { clave: 'clases', etiqueta: 'Diagrama de Clases', icono: 'clases' }
+        { clave: 'clases', etiqueta: 'Diagrama de Clases', icono: 'clases' },
+        { clave: 'secuencia', etiqueta: 'Diagrama de Secuencia', icono: 'secuencia' }
     ];
 
     constructor(
@@ -69,14 +70,22 @@ export class DiagramasComponent {
         }).subscribe({
             next: (res) => {
                 this.mostrarModal.set(false);
-                this.router.navigate(['/proyectos', this.proyecto().id, 'diagrama', res.diagrama.id]);
+                if (this.tipoDiagrama() === 'secuencia') {
+                    this.router.navigate(['/proyectos', this.proyecto().id, 'diagrama-secuencia', res.diagrama.id]);
+                } else {
+                    this.router.navigate(['/proyectos', this.proyecto().id, 'diagrama', res.diagrama.id]);
+                }
             },
             error: (err) => this.error.set(err.error?.error || 'Error al crear el diagrama')
         });
     }
 
     abrirEditor(diagrama: Diagrama): void {
-        this.router.navigate(['/proyectos', this.proyecto().id, 'diagrama', diagrama.id]);
+        if (diagrama.tipo === 'secuencia') {
+            this.router.navigate(['/proyectos', this.proyecto().id, 'diagrama-secuencia', diagrama.id]);
+        } else {
+            this.router.navigate(['/proyectos', this.proyecto().id, 'diagrama', diagrama.id]);
+        }
     }
 
     eliminarDiagrama(diagrama: Diagrama, event: Event): void {
