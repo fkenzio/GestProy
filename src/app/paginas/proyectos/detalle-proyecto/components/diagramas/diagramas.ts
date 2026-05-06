@@ -1,4 +1,4 @@
-import { Component, input, signal, effect } from '@angular/core';
+import { Component, input, signal, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -22,10 +22,15 @@ export class DiagramasComponent {
     tipoDiagrama = signal('clases');
     error = signal('');
 
-    tiposDisponibles = [
+    tiposBase = [
         { clave: 'clases', etiqueta: 'Diagrama de Clases', icono: 'clases' },
         { clave: 'secuencia', etiqueta: 'Diagrama de Secuencia', icono: 'secuencia' }
     ];
+
+    tiposDisponibles = computed(() => {
+        const creados = this.diagramas().map(d => d.tipo);
+        return this.tiposBase.filter(t => !creados.includes(t.clave));
+    });
 
     constructor(
         private diagramaService: DiagramaService,
@@ -44,8 +49,10 @@ export class DiagramasComponent {
     }
 
     abrirModal(): void {
+        const disponibles = this.tiposDisponibles();
+        if (disponibles.length === 0) return;
         this.nombreDiagrama.set('');
-        this.tipoDiagrama.set('clases');
+        this.tipoDiagrama.set(disponibles[0].clave);
         this.error.set('');
         this.mostrarModal.set(true);
     }
@@ -96,7 +103,7 @@ export class DiagramasComponent {
     }
 
     obtenerEtiquetaTipo(tipo: string): string {
-        const t = this.tiposDisponibles.find(td => td.clave === tipo);
+        const t = this.tiposBase.find(td => td.clave === tipo);
         return t ? t.etiqueta : tipo;
     }
 }

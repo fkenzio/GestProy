@@ -47,6 +47,8 @@ export class EditorDiagramaComponent implements AfterViewInit, OnDestroy {
     tipoDiagrama = signal('');
     guardando = signal(false);
     guardadoExitoso = signal(false);
+    cambiosSinGuardar = signal(false);
+    mostrarModalSalir = signal(false);
 
     elementos = signal<ElementoDiagrama[]>([]);
     conexiones = signal<Conexion[]>([]);
@@ -207,6 +209,7 @@ export class EditorDiagramaComponent implements AfterViewInit, OnDestroy {
     }
 
     onMouseUp(): void {
+        if (this.arrastrando) this.marcarCambio();
         this.arrastrando = false;
         this.panActivo = false;
         this.minimapArrastrando = false;
@@ -362,6 +365,7 @@ export class EditorDiagramaComponent implements AfterViewInit, OnDestroy {
             this.conexionSeleccionada.set(nueva);
             this.modoConexion.set(false);
             this.conexionOrigen.set(null);
+            this.marcarCambio();
         }
     }
 
@@ -515,7 +519,7 @@ export class EditorDiagramaComponent implements AfterViewInit, OnDestroy {
 
     // --- Guardar ---
 
-    guardar(): void {
+    guardar(salirAlTerminar = false): void {
         this.guardando.set(true);
         this.guardadoExitoso.set(false);
 
@@ -529,14 +533,32 @@ export class EditorDiagramaComponent implements AfterViewInit, OnDestroy {
             next: () => {
                 this.guardando.set(false);
                 this.guardadoExitoso.set(true);
-                setTimeout(() => this.guardadoExitoso.set(false), 2000);
+                this.cambiosSinGuardar.set(false);
+                if (salirAlTerminar) {
+                    this.router.navigate(['/proyectos', this.proyectoId]);
+                } else {
+                    setTimeout(() => this.guardadoExitoso.set(false), 2000);
+                }
             },
             error: () => this.guardando.set(false)
         });
     }
 
     volver(): void {
+        if (this.cambiosSinGuardar()) {
+            this.mostrarModalSalir.set(true);
+        } else {
+            this.router.navigate(['/proyectos', this.proyectoId]);
+        }
+    }
+
+    salirSinGuardar(): void {
+        this.mostrarModalSalir.set(false);
         this.router.navigate(['/proyectos', this.proyectoId]);
+    }
+
+    marcarCambio(): void {
+        this.cambiosSinGuardar.set(true);
     }
 
     resetView(): void {

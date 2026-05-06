@@ -46,6 +46,8 @@ export class EditorSecuenciaComponent implements AfterViewInit, OnDestroy {
     tipoDiagrama = signal('');
     guardando = signal(false);
     guardadoExitoso = signal(false);
+    cambiosSinGuardar = signal(false);
+    mostrarModalSalir = signal(false);
 
     lifelines = signal<Lifeline[]>([]);
     messages = signal<Message[]>([]);
@@ -270,6 +272,7 @@ export class EditorSecuenciaComponent implements AfterViewInit, OnDestroy {
     }
 
     onMouseUp(): void {
+        if (this.arrastrandoLifeline || this.arrastrandoMessage || this.arrastrandoNote) this.marcarCambio();
         this.arrastrandoLifeline = false;
         this.arrastrandoMessage = false;
         this.arrastrandoNote = false;
@@ -405,6 +408,7 @@ export class EditorSecuenciaComponent implements AfterViewInit, OnDestroy {
             this.messageSeleccionado.set(nueva);
             this.modoConexion.set(false);
             this.conexionOrigen.set(null);
+            this.marcarCambio();
         }
     }
 
@@ -457,10 +461,23 @@ export class EditorSecuenciaComponent implements AfterViewInit, OnDestroy {
     }
 
     volver(): void {
+        if (this.cambiosSinGuardar()) {
+            this.mostrarModalSalir.set(true);
+        } else {
+            this.router.navigate(['/proyectos', this.proyectoId]);
+        }
+    }
+
+    salirSinGuardar(): void {
+        this.mostrarModalSalir.set(false);
         this.router.navigate(['/proyectos', this.proyectoId]);
     }
 
-    guardarDiagrama(): void {
+    marcarCambio(): void {
+        this.cambiosSinGuardar.set(true);
+    }
+
+    guardarDiagrama(salirAlTerminar = false): void {
         this.guardando.set(true);
         this.guardadoExitoso.set(false);
 
@@ -477,13 +494,79 @@ export class EditorSecuenciaComponent implements AfterViewInit, OnDestroy {
                 next: () => {
                     this.guardando.set(false);
                     this.guardadoExitoso.set(true);
-                    setTimeout(() => this.guardadoExitoso.set(false), 3000);
+                    this.cambiosSinGuardar.set(false);
+                    if (salirAlTerminar) {
+                        this.router.navigate(['/proyectos', this.proyectoId]);
+                    } else {
+                        setTimeout(() => this.guardadoExitoso.set(false), 3000);
+                    }
                 },
                 error: () => {
                     this.guardando.set(false);
                     alert('Error al guardar diagrama');
                 }
             });
+    }
+
+    resetView(): void {
+        if (this.lifelines().length === 0 && this.notes().length === 0) {
+            this.viewBoxX = 0;
+            this.viewBoxY = 0;
+            this.viewBoxW = 1200;
+            this.viewBoxH = 800;
+            this.zoom = 1;
+            return;
+        }
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        
+        for (const ll of this.lifelines()) {
+            if (ll.x < minX) minX = ll.x;
+            if (ll.x + 100 > maxX) maxX = ll.x + 100;
+            if (50 < minY) minY = 50;
+            if (600 > maxY) maxY = 600;
+        }
+        
+        for (const msg of this.messages()) {
+            if (msg.y < minY) minY = msg.y;
+            if (msg.y > maxY) maxY = msg.y;
+        }
+
+        for (const note of this.notes()) {
+            if (note.x < minX) minX = note.x;
+            if (note.y < minY) minY = note.y;
+            if (note.x + note.width > maxX) maxX = note.x + note.width;
+            if (note.y + note.height > maxY) maxY = note.y + note.height;
+        }
+
+        if (minX === Infinity) return;
+
+        const padding = 100;
+        minX -= padding;
+        minY -= padding;
+        maxX += padding;
+        maxY += padding;
+
+        const w = Math.max(maxX - minX, 1200);
+        const h = Math.max(maxY - minY, 800);
+
+        const aspectCanvas = 1200 / 800;
+        const aspectContent = w / h;
+
+        let finalW = w;
+        let finalH = h;
+
+        if (aspectContent > aspectCanvas) {
+            finalH = w / aspectCanvas;
+        } else {
+            finalW = h * aspectCanvas;
+        }
+
+        this.viewBoxX = minX - (finalW - (maxX - minX)) / 2;
+        this.viewBoxY = minY - (finalH - (maxY - minY)) / 2;
+        this.viewBoxW = finalW;
+        this.viewBoxH = finalH;
+        this.zoom = 1200 / finalW;
     }
 
     onMinimapMouseDown(event: MouseEvent): void {

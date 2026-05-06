@@ -1,7 +1,9 @@
 <div class="diagramas-contenedor">
     <div class="seccion-header">
         <h2>Diagramas del Proyecto</h2>
+        @if (tiposDisponibles().length > 0) {
         <button class="boton-agregar" (click)="abrirModal()">+ Crear Diagrama</button>
+        }
     </div>
 
     @if (diagramas().length === 0) {
@@ -49,7 +51,7 @@
         <div class="campo">
             <label>Tipo de diagrama</label>
             <div class="tipos-grid">
-                @for (tipo of tiposDisponibles; track tipo.clave) {
+                @for (tipo of tiposDisponibles(); track tipo.clave) {
                 <div class="tipo-opcion" [class.tipo-seleccionado]="tipoDiagrama() === tipo.clave"
                     (click)="tipoDiagrama.set(tipo.clave)">
                     <svg width="22" height="22" viewBox="0 0 22 22"><rect x="1" y="1" width="20" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="21" y2="8" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="21" y2="14" stroke="currentColor" stroke-width="1"/></svg>

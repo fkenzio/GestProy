@@ -3,7 +3,7 @@
     <header class="editor-toolbar">
         <div class="toolbar-izq">
             <button class="boton-volver" (click)="volver()">&#8592; Volver</button>
-            <input class="input-nombre" type="text" [ngModel]="nombreDiagrama()" (ngModelChange)="nombreDiagrama.set($event)" />
+            <input class="input-nombre" type="text" [ngModel]="nombreDiagrama()" (ngModelChange)="nombreDiagrama.set($event); marcarCambio()" />
         </div>
         <div class="toolbar-centro">
             @if (modoConexion()) {
@@ -12,7 +12,9 @@
             }
         </div>
         <div class="toolbar-der">
-            <button class="boton-tool" (click)="resetView()" title="Resetear vista">&#8634;</button>
+            <button class="boton-tool" (click)="resetView()" title="Centrar diagrama">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12h2"/><path d="M3 12h2"/><path d="M12 3v2"/><path d="M12 19v2"/></svg>
+            </button>
             @if (guardadoExitoso()) {
             <span class="guardado-ok">&#10003; Guardado</span>
             }
@@ -26,23 +28,23 @@
         <!-- Sidebar izquierda: herramientas -->
         <aside class="sidebar-herramientas">
             <p class="sidebar-titulo">Elementos</p>
-            <button class="herramienta-item" (click)="agregarElemento('clase')">
+            <button class="herramienta-item" (click)="agregarElemento('clase'); marcarCambio()">
                 <svg width="18" height="18" viewBox="0 0 18 18"><rect x="1" y="1" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="7" x2="17" y2="7" stroke="currentColor" stroke-width="1"/><line x1="1" y1="12" x2="17" y2="12" stroke="currentColor" stroke-width="1"/></svg>
                 <span>Clase</span>
             </button>
-            <button class="herramienta-item" (click)="agregarElemento('interfaz')">
+            <button class="herramienta-item" (click)="agregarElemento('interfaz'); marcarCambio()">
                 <svg width="18" height="18" viewBox="0 0 18 18"><rect x="1" y="1" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2,2"/><line x1="1" y1="7" x2="17" y2="7" stroke="currentColor" stroke-width="1"/></svg>
                 <span>Interfaz</span>
             </button>
-            <button class="herramienta-item" (click)="agregarElemento('enum')">
+            <button class="herramienta-item" (click)="agregarElemento('enum'); marcarCambio()">
                 <svg width="18" height="18" viewBox="0 0 18 18"><rect x="1" y="1" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="7" x2="17" y2="7" stroke="currentColor" stroke-width="1"/></svg>
                 <span>Enum</span>
             </button>
-            <button class="herramienta-item" (click)="agregarElemento('paquete')">
+            <button class="herramienta-item" (click)="agregarElemento('paquete'); marcarCambio()">
                 <svg width="18" height="18" viewBox="0 0 18 18"><path d="M1 5 L6 5 L8 7 L17 7 L17 16 L1 16 Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
                 <span>Paquete</span>
             </button>
-            <button class="herramienta-item" (click)="agregarElemento('etiqueta')">
+            <button class="herramienta-item" (click)="agregarElemento('etiqueta'); marcarCambio()">
                 <svg width="18" height="18" viewBox="0 0 18 18"><path d="M1 1 L17 1 L17 12 L12 17 L1 17 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M17 12 L12 12 L12 17" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
                 <span>Etiqueta</span>
             </button>
@@ -302,14 +304,14 @@
             <div class="prop-campo">
                 <label>Nombre</label>
                 <input type="text" [ngModel]="elementoSeleccionado()!.data.name"
-                    (ngModelChange)="actualizarNombreClase($event)" />
+                    (ngModelChange)="actualizarNombreClase($event); marcarCambio()" />
             </div>
 
             @if (elementoSeleccionado()!.type === 'clase' || elementoSeleccionado()!.type === 'interfaz' || elementoSeleccionado()!.type === 'enum') {
             <div class="prop-campo">
                 <label>Pertenece al paquete:</label>
                 <select [ngModel]="elementoSeleccionado()!.data.packageId" style="width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 6px; font-family: 'Inter', sans-serif;"
-                        (ngModelChange)="actualizarPaquete($event)">
+                        (ngModelChange)="actualizarPaquete($event); marcarCambio()">
                     <option [ngValue]="undefined">-- Ninguno --</option>
                     @for (pkg of getPaquetes(); track pkg.id) {
                         <option [value]="pkg.id">{{ pkg.data.name }}</option>
@@ -322,7 +324,7 @@
                 <label>Texto de la etiqueta</label>
                 <textarea rows="4" style="width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 8px; font-family: 'Inter', sans-serif;"
                     [ngModel]="elementoSeleccionado()!.data.text"
-                    (ngModelChange)="elementoSeleccionado()!.data.text = $event"></textarea>
+                    (ngModelChange)="elementoSeleccionado()!.data.text = $event; marcarCambio()"></textarea>
             </div>
             }
 
@@ -331,7 +333,7 @@
             @for (attr of elementoSeleccionado()!.data.attributes; track $index) {
             <div class="prop-item">
                 <span>{{ attr.visibility }} {{ attr.name }}: {{ attr.type }}</span>
-                <button class="boton-x" (click)="eliminarAtributo($index)">&#10005;</button>
+                <button class="boton-x" (click)="eliminarAtributo($index); marcarCambio()">&#10005;</button>
             </div>
             }
             <div class="prop-form-inline">
@@ -347,7 +349,7 @@
                     (ngModelChange)="nuevoAtributo.set({visibility: nuevoAtributo().visibility, name: $event, type: nuevoAtributo().type})" />
                 <input type="text" placeholder="tipo" [ngModel]="nuevoAtributo().type"
                     (ngModelChange)="nuevoAtributo.set({visibility: nuevoAtributo().visibility, name: nuevoAtributo().name, type: $event})" />
-                <button class="boton-add" (click)="agregarAtributo()">+</button>
+                <button class="boton-add" (click)="agregarAtributo(); marcarCambio()">+</button>
             </div>
             }
 
@@ -356,7 +358,7 @@
             @for (met of elementoSeleccionado()!.data.methods; track $index) {
             <div class="prop-item">
                 <span>{{ met.visibility }} {{ met.name }}({{ met.params }}): {{ met.returnType }}</span>
-                <button class="boton-x" (click)="eliminarMetodo($index)">&#10005;</button>
+                <button class="boton-x" (click)="eliminarMetodo($index); marcarCambio()">&#10005;</button>
             </div>
             }
             <div class="prop-form-inline">
@@ -372,7 +374,7 @@
                     (ngModelChange)="nuevoMetodo.set({visibility: nuevoMetodo().visibility, name: nuevoMetodo().name, params: $event, returnType: nuevoMetodo().returnType})" />
                 <input type="text" placeholder="retorno" [ngModel]="nuevoMetodo().returnType"
                     (ngModelChange)="nuevoMetodo.set({visibility: nuevoMetodo().visibility, name: nuevoMetodo().name, params: nuevoMetodo().params, returnType: $event})" />
-                <button class="boton-add" (click)="agregarMetodo()">+</button>
+                <button class="boton-add" (click)="agregarMetodo(); marcarCambio()">+</button>
             </div>
             }
 
@@ -381,17 +383,17 @@
             @for (val of elementoSeleccionado()!.data.values; track $index) {
             <div class="prop-item">
                 <span>{{ val }}</span>
-                <button class="boton-x" (click)="eliminarValorEnum($index)">&#10005;</button>
+                <button class="boton-x" (click)="eliminarValorEnum($index); marcarCambio()">&#10005;</button>
             </div>
             }
             <div class="prop-form-inline">
                 <input type="text" placeholder="NUEVO_VALOR" [ngModel]="nuevoValorEnum()"
                     (ngModelChange)="nuevoValorEnum.set($event)" />
-                <button class="boton-add" (click)="agregarValorEnum()">+</button>
+                <button class="boton-add" (click)="agregarValorEnum(); marcarCambio()">+</button>
             </div>
             }
 
-            <button class="btn-eliminar" (click)="eliminarElemento()">
+            <button class="btn-eliminar" (click)="eliminarElemento(); marcarCambio()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
                 </svg>
@@ -406,7 +408,7 @@
             <div class="prop-campo">
                 <label>Origen</label>
                 <select [ngModel]="conexionSeleccionada()!.sourceMulti"
-                    (ngModelChange)="actualizarMultiplicidad(conexionSeleccionada()!, 'source', $event)">
+                    (ngModelChange)="actualizarMultiplicidad(conexionSeleccionada()!, 'source', $event); marcarCambio()">
                     <option value="1">1</option>
                     <option value="0..1">0..1</option>
                     <option value="0..*">0..*</option>
@@ -417,7 +419,7 @@
             <div class="prop-campo">
                 <label>Destino</label>
                 <select [ngModel]="conexionSeleccionada()!.targetMulti"
-                    (ngModelChange)="actualizarMultiplicidad(conexionSeleccionada()!, 'target', $event)">
+                    (ngModelChange)="actualizarMultiplicidad(conexionSeleccionada()!, 'target', $event); marcarCambio()">
                     <option value="1">1</option>
                     <option value="0..1">0..1</option>
                     <option value="0..*">0..*</option>
@@ -427,7 +429,7 @@
             </div>
 
             <div class="prop-acciones">
-                <button class="boton-eliminar" (click)="eliminarConexion()">Eliminar Conexion</button>
+                <button class="boton-eliminar" (click)="eliminarConexion(); marcarCambio()">Eliminar Conexion</button>
             </div>
 
             } @else {
@@ -436,4 +438,18 @@
             }
         </aside>
     </div>
+
+    @if (mostrarModalSalir()) {
+    <div class="modal-overlay">
+        <div class="modal-contenido" style="max-width: 400px; text-align: center;">
+            <h3 style="margin-bottom: 16px; color: #1e293b;">Cambios sin guardar</h3>
+            <p style="margin-bottom: 24px; color: #475569;">Tienes cambios sin guardar. ¿Deseas guardarlos antes de salir?</p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <button class="boton-cancelar" (click)="mostrarModalSalir.set(false)" style="flex: 1; min-width: 100px;">Cancelar</button>
+                <button class="boton-eliminar" (click)="salirSinGuardar()" style="flex: 1; min-width: 100px; background: #ef4444; border: none; color: white;">Salir sin guardar</button>
+                <button class="boton-guardar" (click)="guardar(true)" style="flex: 1; min-width: 100px;">Guardar y salir</button>
+            </div>
+        </div>
+    </div>
+    }
 </div>
