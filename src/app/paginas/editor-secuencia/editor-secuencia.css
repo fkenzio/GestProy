@@ -237,7 +237,7 @@
 .minimapa-contenedor {
     position: absolute;
     bottom: 20px;
-    left: 180px;
+    left: 20px;
     /* offset from sidebar-herramientas (160px + 20px) */
     width: 220px;
     height: 160px;
@@ -265,7 +265,7 @@
 .zoom-contenedor {
     position: absolute;
     bottom: 195px;
-    left: 180px;
+    left: 20px;
     /* alineado con minimapa */
     background: #ffffff;
     border: 1px solid var(--color-border);
