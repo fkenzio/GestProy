@@ -29,6 +29,11 @@ export const routes: Routes = [
         loadComponent: () => import('./paginas/editor-secuencia/editor-secuencia').then(m => m.EditorSecuenciaComponent),
         canActivate: [authGuard]
     },
+    {
+        path: 'proyectos/:id/diagrama-casos-uso/:diagramaId',
+        loadComponent: () => import('./paginas/editor-casos-uso/editor-casos-uso').then(m => m.EditorCasosUsoComponent),
+        canActivate: [authGuard]
+    },
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: '**', redirectTo: 'login' }
 ];

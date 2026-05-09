@@ -1,0 +1,317 @@
+<div class="editor-contenedor">
+    <header class="editor-toolbar">
+        <div class="toolbar-izq">
+            <button class="boton-volver" (click)="volver()">← Volver</button>
+            <input class="input-nombre" [ngModel]="nombreDiagrama()" (ngModelChange)="nombreDiagrama.set($event); marcarCambio()"
+                placeholder="Nombre del diagrama" />
+        </div>
+        <div class="toolbar-centro">
+            @if (modoConexion()) {
+            <span class="modo-activo">Modo conexión: {{ tipoConexionActual() }}</span>
+            <button class="boton-tool boton-cancelar-tool" (click)="cancelarConexion()">Cancelar</button>
+            }
+        </div>
+        <div class="toolbar-der">
+            <button class="boton-tool" (click)="resetView()" title="Centrar diagrama">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12h2"/><path d="M3 12h2"/><path d="M12 3v2"/><path d="M12 19v2"/></svg>
+            </button>
+            @if (guardadoExitoso()) {
+            <span class="guardado-ok">✓ Guardado</span>
+            }
+            <button class="boton-guardar" (click)="guardarDiagrama()" [disabled]="guardando() || !nombreDiagrama()">
+                {{ guardando() ? 'Guardando...' : 'Guardar' }}
+            </button>
+        </div>
+    </header>
+
+    <div class="editor-cuerpo">
+        <aside class="sidebar-herramientas">
+            <div class="sidebar-titulo">Elementos</div>
+            <button class="herramienta-item" (click)="agregarActor()">
+                <span class="herramienta-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                Actor
+            </button>
+            <button class="herramienta-item" (click)="agregarCasoUso()">
+                <span class="herramienta-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="7"/></svg></span>
+                Caso de Uso
+            </button>
+            <button class="herramienta-item" (click)="agregarLimiteSistema()">
+                <span class="herramienta-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2" stroke-dasharray="5 3"/></svg></span>
+                Limite Sistema
+            </button>
+
+            <div class="sidebar-titulo" style="margin-top: 24px;">Relaciones</div>
+            <button class="herramienta-item" (click)="activarModoConexion('association')" [class.activo]="modoConexion() && tipoConexionActual() === 'association'">
+                <span class="herramienta-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></span>
+                Asociacion
+            </button>
+            <button class="herramienta-item" (click)="activarModoConexion('include')" [class.activo]="modoConexion() && tipoConexionActual() === 'include'">
+                <span class="herramienta-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14" stroke-dasharray="4 3"/><path d="m13 6 6 6-6 6"/></svg></span>
+                Include
+            </button>
+            <button class="herramienta-item" (click)="activarModoConexion('extend')" [class.activo]="modoConexion() && tipoConexionActual() === 'extend'">
+                <span class="herramienta-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14" stroke-dasharray="4 3"/><path d="m13 6 6 6-6 6"/></svg></span>
+                Extend
+            </button>
+            <button class="herramienta-item" (click)="activarModoConexion('generalization')" [class.activo]="modoConexion() && tipoConexionActual() === 'generalization'">
+                <span class="herramienta-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m13 6 6 6-6 6" fill="none"/></svg></span>
+                Generalizacion
+            </button>
+
+            <div class="sidebar-titulo" style="margin-top: 24px;">Otros</div>
+            <button class="herramienta-item" (click)="agregarNota()">
+                <span class="herramienta-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                Nota
+            </button>
+        </aside>
+
+        <div class="canvas-wrapper">
+            <svg #svgCanvas class="canvas-svg" [attr.viewBox]="getViewBox()" (mousedown)="onCanvasMouseDown($event)" (wheel)="onWheel($event)">
+                <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="0.5" />
+                    </pattern>
+                    <marker id="arrowOpen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="#1e293b" stroke-width="1.5" />
+                    </marker>
+                    <marker id="arrowTriangle" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                        <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fff" stroke="#1e293b" stroke-width="1" />
+                    </marker>
+                </defs>
+
+                <rect x="-50000" y="-50000" width="100000" height="100000" fill="url(#grid)" />
+
+                <!-- Limites del Sistema (se dibujan primero, al fondo) -->
+                <g>
+                    @for (bound of systemBounds(); track bound.id) {
+                    <g [class.elemento-seleccionado]="boundSeleccionado()?.id === bound.id"
+                       (mousedown)="onBoundMouseDown($event, bound)" cursor="move">
+                        <rect [attr.x]="bound.x" [attr.y]="bound.y"
+                              [attr.width]="bound.width" [attr.height]="bound.height"
+                              fill="rgba(241, 245, 249, 0.4)" stroke="#64748b" stroke-width="1.5" rx="6"
+                              [attr.stroke-dasharray]="boundSeleccionado()?.id === bound.id ? 'none' : '8,4'" />
+                        <text [attr.x]="bound.x + bound.width / 2" [attr.y]="bound.y + 22"
+                              text-anchor="middle" font-family="'Inter', sans-serif" font-size="14" font-weight="700" fill="#334155">
+                            {{ bound.name }}
+                        </text>
+                    </g>
+                    }
+                </g>
+
+                <!-- Relaciones -->
+                <g>
+                    @for (rel of relations(); track rel.id) {
+                    <g [class.conexion-seleccionada]="relationSeleccionada()?.id === rel.id"
+                       (mousedown)="onRelationMouseDown($event, rel)" cursor="pointer">
+                        <line [attr.x1]="getElementCenter(rel.sourceId).x"
+                              [attr.y1]="getElementCenter(rel.sourceId).y"
+                              [attr.x2]="getElementCenter(rel.targetId).x"
+                              [attr.y2]="getElementCenter(rel.targetId).y"
+                              stroke="transparent" stroke-width="15" />
+                        <line [attr.x1]="getElementCenter(rel.sourceId).x"
+                              [attr.y1]="getElementCenter(rel.sourceId).y"
+                              [attr.x2]="getElementCenter(rel.targetId).x"
+                              [attr.y2]="getElementCenter(rel.targetId).y"
+                              stroke="#1e293b"
+                              [attr.stroke-dasharray]="getRelationDash(rel.type)"
+                              [attr.marker-end]="getRelationMarker(rel.type)"
+                              [attr.stroke-width]="relationSeleccionada()?.id === rel.id ? 3 : 1.5" />
+                        @if (getRelationLabel(rel.type)) {
+                        <text [attr.x]="(getElementCenter(rel.sourceId).x + getElementCenter(rel.targetId).x) / 2"
+                              [attr.y]="(getElementCenter(rel.sourceId).y + getElementCenter(rel.targetId).y) / 2 - 8"
+                              text-anchor="middle" font-family="'Inter', sans-serif" font-size="11" font-style="italic" fill="#475569">
+                            {{ getRelationLabel(rel.type) }}
+                        </text>
+                        }
+                    </g>
+                    }
+                </g>
+
+                <!-- Notas -->
+                <g>
+                    @for (note of notes(); track note.id) {
+                    <g [class.note-seleccionada]="noteSeleccionada()?.id === note.id" (mousedown)="onNoteMouseDown($event, note)">
+                        <rect [attr.x]="note.x" [attr.y]="note.y" [attr.width]="note.width" [attr.height]="note.height"
+                              fill="#fef9c3" stroke="#eab308" stroke-width="1.5" rx="4" />
+                        <path [attr.d]="'M ' + (note.x + note.width - 15) + ' ' + note.y + ' L ' + (note.x + note.width) + ' ' + (note.y + 15) + ' L ' + (note.x + note.width) + ' ' + note.y + ' Z'"
+                              fill="#eab308" />
+                        <foreignObject [attr.x]="note.x + 10" [attr.y]="note.y + 10" [attr.width]="note.width - 20" [attr.height]="note.height - 20">
+                            <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Inter', sans-serif; font-size: 12px; color: #1e293b; overflow: hidden; height: 100%;">
+                                {{ note.text }}
+                            </div>
+                        </foreignObject>
+                    </g>
+                    }
+                </g>
+
+                <!-- Casos de Uso (elipses) -->
+                <g>
+                    @for (uc of useCases(); track uc.id) {
+                    <g [attr.transform]="'translate(' + uc.x + ',' + uc.y + ')'"
+                       [class.elemento-seleccionado]="useCaseSeleccionado()?.id === uc.id"
+                       [class.elemento-conexion-origen]="conexionOrigen()?.id === uc.id"
+                       (mousedown)="onUseCaseMouseDown($event, uc)" cursor="move">
+                        <ellipse class="uc-ellipse" cx="70" cy="25" rx="70" ry="25"
+                                 fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" />
+                        <text x="70" y="29" text-anchor="middle" font-family="'Inter', sans-serif"
+                              font-size="12" font-weight="600" fill="#0c4a6e">
+                            {{ uc.name }}
+                        </text>
+                    </g>
+                    }
+                </g>
+
+                <!-- Actores -->
+                <g>
+                    @for (actor of actors(); track actor.id) {
+                    <g [attr.transform]="'translate(' + actor.x + ',' + actor.y + ')'"
+                       [class.elemento-seleccionado]="actorSeleccionado()?.id === actor.id"
+                       [class.elemento-conexion-origen]="conexionOrigen()?.id === actor.id"
+                       (mousedown)="onActorMouseDown($event, actor)" cursor="move">
+                        <rect x="-5" y="-5" width="60" height="90" fill="transparent" />
+                        <circle cx="25" cy="10" r="10" fill="#bae6fd" stroke="#0369a1" stroke-width="1.5" />
+                        <line x1="25" y1="20" x2="25" y2="45" stroke="#0369a1" stroke-width="1.5" />
+                        <line x1="25" y1="28" x2="10" y2="38" stroke="#0369a1" stroke-width="1.5" />
+                        <line x1="25" y1="28" x2="40" y2="38" stroke="#0369a1" stroke-width="1.5" />
+                        <line x1="25" y1="45" x2="10" y2="60" stroke="#0369a1" stroke-width="1.5" />
+                        <line x1="25" y1="45" x2="40" y2="60" stroke="#0369a1" stroke-width="1.5" />
+                        <text x="25" y="78" text-anchor="middle" font-family="'Inter', sans-serif"
+                              font-size="12" font-weight="700" fill="#1e293b">
+                            {{ actor.name }}
+                        </text>
+                    </g>
+                    }
+                </g>
+            </svg>
+
+            <div class="minimapa-contenedor">
+                <svg class="minimapa-svg" viewBox="-5000 -5000 10000 10000" (mousedown)="onMinimapMouseDown($event)">
+                    @for (bound of systemBounds(); track bound.id) {
+                        <rect [attr.x]="bound.x" [attr.y]="bound.y" [attr.width]="bound.width" [attr.height]="bound.height"
+                              fill="rgba(241,245,249,0.4)" stroke="#64748b" stroke-width="20" />
+                    }
+                    @for (uc of useCases(); track uc.id) {
+                        <ellipse [attr.cx]="uc.x + 70" [attr.cy]="uc.y + 25" rx="70" ry="25" fill="#e0f2fe" />
+                    }
+                    @for (actor of actors(); track actor.id) {
+                        <circle [attr.cx]="actor.x + 25" [attr.cy]="actor.y + 10" r="30" fill="#bae6fd" />
+                    }
+                    @for (rel of relations(); track rel.id) {
+                        <line [attr.x1]="getElementCenter(rel.sourceId).x" [attr.y1]="getElementCenter(rel.sourceId).y"
+                              [attr.x2]="getElementCenter(rel.targetId).x" [attr.y2]="getElementCenter(rel.targetId).y"
+                              stroke="#000" stroke-width="15" />
+                    }
+                    @for (note of notes(); track note.id) {
+                        <rect [attr.x]="note.x" [attr.y]="note.y" [attr.width]="note.width" [attr.height]="note.height" fill="#fef9c3" />
+                    }
+                    <rect class="minimapa-viewport"
+                          [attr.x]="viewBoxX" [attr.y]="viewBoxY"
+                          [attr.width]="viewBoxW" [attr.height]="viewBoxH"
+                          fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" stroke-width="40" />
+                </svg>
+            </div>
+
+            <div class="zoom-contenedor">
+                <button class="zoom-btn" (click)="zoomOut()">-</button>
+                <input type="range" class="zoom-slider" min="0.2" max="2" step="0.1" [ngModel]="zoom" (ngModelChange)="setZoomStr($event)">
+                <button class="zoom-btn" (click)="zoomIn()">+</button>
+                <span class="zoom-text">{{ getZoomPercent() }}%</span>
+            </div>
+        </div>
+
+        <aside class="sidebar-propiedades">
+            <div class="sidebar-titulo">Propiedades</div>
+
+            @if (actorSeleccionado()) {
+            <div class="prop-campo">
+                <label>Nombre del Actor</label>
+                <input type="text" [ngModel]="actorSeleccionado()!.name" (ngModelChange)="actualizarNombre($event, 'actor')" />
+            </div>
+            <div class="prop-acciones">
+                <button class="boton-eliminar" (click)="eliminarElemento()" style="display: flex; align-items: center; justify-content: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    Eliminar Actor
+                </button>
+            </div>
+
+            } @else if (useCaseSeleccionado()) {
+            <div class="prop-campo">
+                <label>Nombre del Caso de Uso</label>
+                <input type="text" [ngModel]="useCaseSeleccionado()!.name" (ngModelChange)="actualizarNombre($event, 'useCase')" />
+            </div>
+            <div class="prop-acciones">
+                <button class="boton-eliminar" (click)="eliminarElemento()" style="display: flex; align-items: center; justify-content: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    Eliminar Caso de Uso
+                </button>
+            </div>
+
+            } @else if (boundSeleccionado()) {
+            <div class="prop-campo">
+                <label>Nombre del Limite</label>
+                <input type="text" [ngModel]="boundSeleccionado()!.name" (ngModelChange)="actualizarNombre($event, 'bound')" />
+            </div>
+            <div class="prop-campo">
+                <label>Ancho</label>
+                <input type="number" [ngModel]="boundSeleccionado()!.width" (ngModelChange)="actualizarBoundDimension('width', $event)" min="100" />
+            </div>
+            <div class="prop-campo">
+                <label>Alto</label>
+                <input type="number" [ngModel]="boundSeleccionado()!.height" (ngModelChange)="actualizarBoundDimension('height', $event)" min="100" />
+            </div>
+            <div class="prop-acciones">
+                <button class="boton-eliminar" (click)="eliminarElemento()" style="display: flex; align-items: center; justify-content: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    Eliminar Limite
+                </button>
+            </div>
+
+            } @else if (relationSeleccionada()) {
+            <div class="prop-campo">
+                <label>Tipo de Relacion</label>
+                <select [ngModel]="relationSeleccionada()!.type" (ngModelChange)="actualizarTipoRelacion($event)">
+                    <option value="association">Asociacion</option>
+                    <option value="include">Include</option>
+                    <option value="extend">Extend</option>
+                    <option value="generalization">Generalizacion</option>
+                </select>
+            </div>
+            <div class="prop-acciones">
+                <button class="boton-eliminar" (click)="eliminarElemento()" style="display: flex; align-items: center; justify-content: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    Eliminar Relacion
+                </button>
+            </div>
+
+            } @else if (noteSeleccionada()) {
+            <div class="prop-campo">
+                <label>Contenido de la Nota</label>
+                <textarea rows="5" [ngModel]="noteSeleccionada()!.text" (ngModelChange)="actualizarTextoNota($event)"></textarea>
+            </div>
+            <div class="prop-acciones">
+                <button class="boton-eliminar" (click)="eliminarElemento()" style="display: flex; align-items: center; justify-content: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    Eliminar Nota
+                </button>
+            </div>
+
+            } @else {
+            <p class="prop-info">Selecciona un elemento en el lienzo para editar sus propiedades.</p>
+            }
+        </aside>
+    </div>
+
+    @if (mostrarModalSalir()) {
+    <div class="modal-overlay">
+        <div class="modal-contenido" style="max-width: 400px; text-align: center;">
+            <h3 style="margin-bottom: 16px; color: #1e293b;">Cambios sin guardar</h3>
+            <p style="margin-bottom: 24px; color: #475569;">Tienes cambios sin guardar. ¿Deseas guardarlos antes de salir?</p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <button class="boton-cancelar" (click)="mostrarModalSalir.set(false)" style="flex: 1; min-width: 100px;">Cancelar</button>
+                <button class="boton-eliminar" (click)="salirSinGuardar()" style="flex: 1; min-width: 100px; background: #ef4444; border: none; color: white;">Salir sin guardar</button>
+                <button class="boton-guardar" (click)="guardarDiagrama(true)" style="flex: 1; min-width: 100px;">Guardar y salir</button>
+            </div>
+        </div>
+    </div>
+    }
+</div>
