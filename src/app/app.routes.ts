@@ -34,6 +34,11 @@ export const routes: Routes = [
         loadComponent: () => import('./paginas/editor-casos-uso/editor-casos-uso').then(m => m.EditorCasosUsoComponent),
         canActivate: [authGuard]
     },
+    {
+        path: 'proyectos/:id/diagrama-paquetes/:diagramaId',
+        loadComponent: () => import('./paginas/editor-paquetes/editor-paquetes').then(m => m.EditorPaquetesComponent),
+        canActivate: [authGuard]
+    },
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: '**', redirectTo: 'login' }
 ];

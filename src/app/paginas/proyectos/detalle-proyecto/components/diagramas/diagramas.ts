@@ -25,7 +25,8 @@ export class DiagramasComponent {
     tiposBase = [
         { clave: 'clases', etiqueta: 'Diagrama de Clases', icono: 'clases' },
         { clave: 'secuencia', etiqueta: 'Diagrama de Secuencia', icono: 'secuencia' },
-        { clave: 'casos_uso', etiqueta: 'Diagrama de Casos de Uso', icono: 'casos_uso' }
+        { clave: 'casos_uso', etiqueta: 'Diagrama de Casos de Uso', icono: 'casos_uso' },
+        { clave: 'paquetes', etiqueta: 'Diagrama de Paquetes', icono: 'paquetes' }
     ];
 
     tiposDisponibles = computed(() => {
@@ -84,6 +85,8 @@ export class DiagramasComponent {
                     this.router.navigate([...base, 'diagrama-secuencia', res.diagrama.id]);
                 } else if (tipo === 'casos_uso') {
                     this.router.navigate([...base, 'diagrama-casos-uso', res.diagrama.id]);
+                } else if (tipo === 'paquetes') {
+                    this.router.navigate([...base, 'diagrama-paquetes', res.diagrama.id]);
                 } else {
                     this.router.navigate([...base, 'diagrama', res.diagrama.id]);
                 }
@@ -98,6 +101,8 @@ export class DiagramasComponent {
             this.router.navigate([...base, 'diagrama-secuencia', diagrama.id]);
         } else if (diagrama.tipo === 'casos_uso') {
             this.router.navigate([...base, 'diagrama-casos-uso', diagrama.id]);
+        } else if (diagrama.tipo === 'paquetes') {
+            this.router.navigate([...base, 'diagrama-paquetes', diagrama.id]);
         } else {
             this.router.navigate([...base, 'diagrama', diagrama.id]);
         }
