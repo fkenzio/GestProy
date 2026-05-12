@@ -67,7 +67,7 @@
     font-family: inherit;
     transition: all var(--transition-fast);
     position: relative;
-    margin-bottom: -1px; /* Overlap border bottom */
+    margin-bottom: -1px;
 }
 
 .pestana:hover {
