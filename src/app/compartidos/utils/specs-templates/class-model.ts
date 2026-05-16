@@ -1,0 +1,141 @@
+import { SpecsData } from '../../servicios/specs.service';
+
+const TYPE_MAP: Record<string, string> = {
+    'int': 'Int', 'integer': 'Int', 'number': 'Int', 'numero': 'Int',
+    'float': 'Float', 'double': 'Float', 'decimal': 'Float',
+    'string': 'String', 'text': 'String', 'texto': 'String', 'varchar': 'String', 'char': 'String',
+    'boolean': 'Boolean', 'bool': 'Boolean',
+    'date': 'DateTime', 'datetime': 'DateTime', 'fecha': 'DateTime', 'timestamp': 'DateTime',
+    'json': 'Json', 'object': 'Json'
+};
+
+const REL_MAP: Record<string, string> = {
+    'asociacion': 'Asociacion', 'herencia': 'Herencia', 'implementacion': 'Implementacion',
+    'composicion': 'Composicion (contiene)', 'agregacion': 'Agregacion (tiene)',
+    'dependencia': 'Dependencia'
+};
+
+export function generarClassModel(data: SpecsData): string {
+    const diagClases = data.diagramas.find((d: any) => d.tipo === 'clases');
+    if (!diagClases || !diagClases.datos) {
+        return `# 03_DATA_MODEL\n\nNo se encontro diagrama de clases. Definir modelo de datos manualmente.\n`;
+    }
+
+    const elementos: any[] = diagClases.datos.elementos || [];
+    const conexiones: any[] = diagClases.datos.conexiones || [];
+    const entidades = elementos.filter((e: any) => e.type === 'clase' || e.type === 'interfaz' || e.type === 'enum');
+
+    let md = `# 03_DATA_MODEL\n\n## Descripcion General\n\nModelo de datos con **${entidades.length}** entidades y **${conexiones.length}** relaciones\n\n## Entidades\n\n`;
+
+    for (const ent of entidades) {
+        const d = ent.data;
+        const tableName = d.name.toLowerCase().replace(/\s+/g, '_');
+        md += `### ${d.name}\n\nTabla: \`${tableName}\`\n\n`;
+
+        if (ent.type === 'enum' && d.values?.length > 0) {
+            md += `**Tipo: Enum**\n\nValores: ${d.values.map((v: string) => `\`${v}\``).join(' | ')}\n\n---\n\n`;
+            continue;
+        }
+
+        if (ent.type === 'interfaz') md += `**Tipo: Interfaz**\n\n`;
+
+        const attrs = d.attributes || [];
+        if (attrs.length > 0) {
+            md += `#### Atributos\n\n| Campo | Tipo | Requerido | PK | Restricciones |\n| --- | --- | --- | --- | --- |\n`;
+            for (const a of attrs) {
+                const isPK = a.name.toLowerCase() === 'id';
+                const prismaType = inferPrismaType(a.type, a.name);
+                const constraints = isPK ? 'autoincrement' : inferConstraints(a.name);
+                md += `| \`${a.name}\` | ${prismaType} | SI | ${isPK ? 'PK' : '-'} | ${constraints} |\n`;
+            }
+            md += `\n`;
+        }
+
+        const methods = d.methods || [];
+        if (methods.length > 0) {
+            md += `#### Metodos\n\n| Metodo | Parametros | Retorna |\n| --- | --- | --- |\n`;
+            for (const m of methods) {
+                md += `| \`${m.name}\` | ${m.params || '-'} | ${m.returnType || 'void'} |\n`;
+            }
+            md += `\n`;
+        }
+
+        const outRels = conexiones.filter((c: any) => c.sourceId === ent.id);
+        const inRels = conexiones.filter((c: any) => c.targetId === ent.id);
+
+        if (outRels.length > 0) {
+            md += `#### Relaciones Salientes\n\n`;
+            for (const r of outRels) {
+                const target = elementos.find((e: any) => e.id === r.targetId);
+                if (!target) continue;
+                const tName = target.data?.name || '?';
+                const relType = REL_MAP[r.type] || r.type;
+                const multi = formatMultiplicity(r.sourceMulti, r.targetMulti, r.type);
+                const cascade = r.type === 'composicion' ? ' [Eliminacion en cascada]' : '';
+                const required = r.type === 'composicion' || r.type === 'herencia' ? ' [Obligatoria]' : ' [Opcional]';
+                md += `- **${d.name}** ${multi} **${tName}** [${relType}]${cascade}${required}\n`;
+            }
+            md += `\n`;
+        }
+
+        if (inRels.length > 0) {
+            md += `#### Relaciones Entrantes\n\n`;
+            for (const r of inRels) {
+                const source = elementos.find((e: any) => e.id === r.sourceId);
+                if (!source) continue;
+                const relType = REL_MAP[r.type] || r.type;
+                md += `- **${source.data?.name}** -> **${d.name}** [${relType}]\n`;
+            }
+            md += `\n`;
+        }
+
+        md += `---\n\n`;
+    }
+
+    md += `## Matriz de Relaciones\n\n| Origen | Destino | Tipo | Multiplicidad | Requerida | Cascada Delete |\n| --- | --- | --- | --- | --- | --- |\n`;
+    for (const c of conexiones) {
+        const src = elementos.find((e: any) => e.id === c.sourceId)?.data?.name || '?';
+        const tgt = elementos.find((e: any) => e.id === c.targetId)?.data?.name || '?';
+        const relType = REL_MAP[c.type] || c.type;
+        const multi = formatMultiplicity(c.sourceMulti, c.targetMulti, c.type);
+        const required = c.type === 'composicion' || c.type === 'herencia' ? 'Obligatoria' : 'Opcional';
+        const cascade = c.type === 'composicion' ? 'Si' : 'No';
+        md += `| ${src} | ${tgt} | ${relType} | ${multi} | ${required} | ${cascade} |\n`;
+    }
+
+    return md;
+}
+
+function inferPrismaType(rawType: string, fieldName: string): string {
+    if (!rawType) return inferFromFieldName(fieldName);
+    const normalized = rawType.toLowerCase().trim();
+    if (TYPE_MAP[normalized]) return TYPE_MAP[normalized];
+    return 'String';
+}
+
+function inferFromFieldName(name: string): string {
+    const lower = name.toLowerCase();
+    if (lower === 'id') return 'Int';
+    if (lower.endsWith('_id') || lower.startsWith('id_')) return 'Int';
+    if (lower.includes('fecha') || lower.includes('date')) return 'DateTime';
+    if (lower.includes('precio') || lower.includes('monto') || lower.includes('total') || lower.includes('costo')) return 'Float';
+    if (lower.includes('cantidad') || lower.includes('numero') || lower.includes('edad') || lower.includes('count')) return 'Int';
+    if (lower.startsWith('es_') || lower.startsWith('is_') || lower.includes('activo') || lower.includes('habilitado')) return 'Boolean';
+    return 'String';
+}
+
+function inferConstraints(name: string): string {
+    const lower = name.toLowerCase();
+    if (lower === 'correo' || lower === 'email') return '@unique';
+    if (lower.endsWith('_id') || lower.startsWith('id_')) return 'FK referencia';
+    return '-';
+}
+
+function formatMultiplicity(srcM: string, tgtM: string, type: string): string {
+    if (type === 'herencia') return 'Herencia';
+    if (type === 'implementacion') return 'Implementa';
+    if (srcM && tgtM) return `${srcM}:${tgtM}`;
+    if (type === 'composicion') return '1:N';
+    if (type === 'agregacion') return '1:N';
+    return 'N/A';
+}

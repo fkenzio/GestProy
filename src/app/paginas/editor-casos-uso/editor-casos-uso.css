@@ -1,5 +1,4 @@
 .editor-contenedor {
-    /* Forzar modo claro para el dibujo */
     --color-bg-body: #f3f4f6;
     --color-bg-card: #ffffff;
     --color-text-main: #111827;
@@ -14,7 +13,6 @@
     background: var(--color-bg-body);
 }
 
-/* --- Toolbar superior --- */
 
 .editor-toolbar {
     display: flex;
