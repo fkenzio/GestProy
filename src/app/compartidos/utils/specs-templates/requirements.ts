@@ -3,6 +3,7 @@ import { SpecsData } from '../../servicios/specs.service';
 export function generarRequirements(data: SpecsData): string {
     const diagCU = data.diagramas.find((d: any) => d.tipo === 'casos_uso');
     const diagsSeq = data.diagramas.filter((d: any) => d.tipo === 'secuencia');
+    const diagClases = data.diagramas.find((d: any) => d.tipo === 'clases');
 
     if (!diagCU || !diagCU.datos) {
         return `# 02_SYSTEM_REQUIREMENTS\n\n## Descripcion General del Sistema\n\nSistema: **${data.proyecto.nombre}**\n\n${data.proyecto.descripcion || ''}\n\nNo se encontro diagrama de casos de uso. Definir requisitos manualmente.\n`;
@@ -13,6 +14,52 @@ export function generarRequirements(data: SpecsData): string {
     const useCases: any[] = datos.useCases || [];
     const relations: any[] = datos.relations || [];
     const boundaries: any[] = datos.boundaries || [];
+    const clases: any[] = diagClases?.datos?.elementos?.filter((e: any) => e.type === 'clase') || [];
+
+    // --- Detectar reglas de negocio implícitas ---
+    const implicitRules: string[] = [];
+    const ucNames = useCases.map((uc: any) => uc.name?.toLowerCase() || '');
+    const claseNames = clases.map((c: any) => c.data?.name?.toLowerCase() || '');
+
+    const hasLogin = ucNames.some(n => n.includes('login') || n.includes('iniciar sesion') || n.includes('autenticacion'));
+    const hasRegister = ucNames.some(n => n.includes('registro') || n.includes('registrar') || n.includes('crear cuenta'));
+    const hasUser = claseNames.some(n => n.includes('usuario') || n.includes('user'));
+    const hasRole = claseNames.some(n => n.includes('rol') || n.includes('role'));
+    const hasProfile = ucNames.some(n => n.includes('perfil') || n.includes('profile'));
+    const hasPassword = ucNames.some(n => n.includes('contrasena') || n.includes('password') || n.includes('cambiar clave'));
+    const hasDelete = ucNames.some(n => n.includes('eliminar') || n.includes('borrar') || n.includes('delete'));
+    const hasSearch = ucNames.some(n => n.includes('buscar') || n.includes('search') || n.includes('filtrar'));
+    const hasPagination = clases.length > 1;
+
+    if (hasLogin) {
+        implicitRules.push('**[AUTH-001]** El sistema debe usar JWT (JSON Web Tokens) para autenticacion. El token debe incluirse en el header Authorization: Bearer <token>.');
+        implicitRules.push('**[AUTH-002]** Las contrasenas deben hashearse con bcrypt antes de guardarse en base de datos. Nunca guardar contrasena en texto plano.');
+        implicitRules.push('**[AUTH-003]** El JWT debe tener expiracion configurada (recomendado: 7 dias). Implementar refresh token si se requiere sesion persistente.');
+    }
+    if (hasRegister) {
+        implicitRules.push('**[AUTH-004]** Al registrarse, validar que el correo no este ya en uso. Devolver error claro si esta duplicado.');
+    }
+    if (hasRole) {
+        implicitRules.push('**[RBAC-001]** El sistema tiene roles. Implementar guards que validen el rol del usuario antes de permitir acciones privilegiadas.');
+    }
+    if (hasProfile) {
+        implicitRules.push('**[PROFILE-001]** El usuario solo puede editar su propio perfil. Nunca permitir que un usuario modifique el perfil de otro.');
+    }
+    if (hasPassword) {
+        implicitRules.push('**[AUTH-005]** Al cambiar contrasena, verificar la contrasena actual antes de permitir el cambio.');
+    }
+    if (hasDelete) {
+        implicitRules.push('**[DATA-001]** Al eliminar registros, implementar soft delete (campo deletedAt) para mantener historial, a menos que el caso de uso especifique eliminacion permanente.');
+    }
+    if (hasSearch) {
+        implicitRules.push('**[DATA-002]** Las busquedas deben ser insensibles a mayusculas/minusculas. Usar ILIKE en PostgreSQL o toLowerCase en la logica.');
+    }
+    if (hasPagination) {
+        implicitRules.push('**[DATA-003]** Los listados deben soportar paginacion. Implementar parametros ?page=1&limit=10 en todos los endpoints GET de listas.');
+    }
+    if (hasUser) {
+        implicitRules.push('**[DATA-004]** Todos los registros creados por un usuario deben guardar referencia al usuario creador (campo createdBy o userId).');
+    }
 
     let md = `# 02_SYSTEM_REQUIREMENTS\n\n## Descripcion General del Sistema\n\nSistema: **${data.proyecto.nombre}**\n\n`;
     if (data.proyecto.descripcion) md += `${data.proyecto.descripcion}\n\n`;
@@ -31,20 +78,18 @@ export function generarRequirements(data: SpecsData): string {
             const actorRels = relations.filter((r: any) =>
                 r.type === 'association' && (r.sourceId === actor.id || r.targetId === actor.id)
             );
-            const ucNames = actorRels.map((r: any) => {
+            const ucNames2 = actorRels.map((r: any) => {
                 const ucId = r.sourceId === actor.id ? r.targetId : r.sourceId;
                 return useCases.find((u: any) => u.id === ucId)?.name;
             }).filter(Boolean);
-
             md += `- **${actor.name}**`;
-            if (ucNames.length > 0) md += ` — Participa en: ${ucNames.join(', ')}`;
+            if (ucNames2.length > 0) md += ` — Participa en: ${ucNames2.join(', ')}`;
             md += `\n`;
         }
         md += `\n`;
     }
 
     md += `## Casos de Uso Detallados\n\n`;
-
     for (const uc of useCases) {
         md += `### ${uc.name}\n\n`;
 
@@ -64,20 +109,20 @@ export function generarRequirements(data: SpecsData): string {
 
         const includes = relations.filter((r: any) => r.type === 'include' && r.sourceId === uc.id);
         if (includes.length > 0) {
-            md += `#### Incluye (Relaciones Include)\n\n`;
+            md += `#### Incluye\n\n`;
             for (const inc of includes) {
                 const target = useCases.find((u: any) => u.id === inc.targetId);
-                if (target) md += `- Incluye el caso de uso: **${target.name}**\n`;
+                if (target) md += `- **${target.name}**\n`;
             }
             md += `\n`;
         }
 
         const extends_ = relations.filter((r: any) => r.type === 'extend' && r.sourceId === uc.id);
         if (extends_.length > 0) {
-            md += `#### Extiende (Relaciones Extend)\n\n`;
+            md += `#### Extiende\n\n`;
             for (const ext of extends_) {
                 const target = useCases.find((u: any) => u.id === ext.targetId);
-                if (target) md += `- Extiende el caso de uso: **${target.name}**\n`;
+                if (target) md += `- **${target.name}**\n`;
             }
             md += `\n`;
         }
@@ -87,10 +132,8 @@ export function generarRequirements(data: SpecsData): string {
             const seqData = matchedSeq.datos || {};
             const lifelines: any[] = seqData.lifelines || [];
             const messages: any[] = seqData.messages || [];
-
             if (messages.length > 0) {
                 md += `#### Flujos de Ejecucion\n\n`;
-                md += `- **${matchedSeq.nombre}** - ${messages.length} pasos\n`;
                 for (let i = 0; i < messages.length; i++) {
                     const msg = messages[i];
                     const src = lifelines.find((l: any) => l.id === msg.sourceId)?.name || '?';
@@ -115,16 +158,18 @@ export function generarRequirements(data: SpecsData): string {
     }
     md += `\n`;
 
-    const diagClases = data.diagramas.find((d: any) => d.tipo === 'clases');
-    if (diagClases?.datos) {
-        const elementos: any[] = diagClases.datos.elementos || [];
-        const entidades = elementos.filter((e: any) => e.type === 'clase' || e.type === 'interfaz');
-        if (entidades.length > 0) {
-            md += `## Entidades de Negocio Involucradas\n\n`;
-            for (const ent of entidades) {
-                const attrCount = ent.data?.attributes?.length || 0;
-                md += `- **${ent.data.name}** - ${attrCount} atributos\n`;
-            }
+    if (implicitRules.length > 0) {
+        md += `## Reglas de Negocio Implicitas\n\n`;
+        md += `Las siguientes reglas se deducen automaticamente del modelo y casos de uso. El agente DEBE implementarlas:\n\n`;
+        for (const rule of implicitRules) md += `- ${rule}\n`;
+        md += `\n`;
+    }
+
+    if (clases.length > 0) {
+        md += `## Entidades de Negocio Involucradas\n\n`;
+        for (const cls of clases) {
+            const attrCount = cls.data?.attributes?.length || 0;
+            md += `- **${cls.data.name}** — ${attrCount} atributos\n`;
         }
     }
 

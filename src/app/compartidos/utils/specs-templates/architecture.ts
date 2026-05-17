@@ -3,6 +3,25 @@ import { SpecsData } from '../../servicios/specs.service';
 export function generarArchitecture(data: SpecsData): string {
     const diagPaq = data.diagramas.find((d: any) => d.tipo === 'paquetes');
     const diagClases = data.diagramas.find((d: any) => d.tipo === 'clases');
+    const diagCU = data.diagramas.find((d: any) => d.tipo === 'casos_uso');
+    const useCases: any[] = diagCU?.datos?.useCases || [];
+
+    const elementos: any[] = diagClases?.datos?.elementos || [];
+    const conexiones: any[] = diagClases?.datos?.conexiones || [];
+    const clases = elementos.filter((e: any) => e.type === 'clase');
+
+    // Nombre de BD
+    const dbName = data.proyecto.nombre.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') + '_db';
+
+    // Detectar auth
+    const hasAuth = useCases.some((uc: any) => {
+        const n = uc.name?.toLowerCase() || '';
+        return n.includes('login') || n.includes('registro') || n.includes('autenticacion') || n.includes('iniciar sesion');
+    }) || clases.some((c: any) => {
+        const n = c.data?.name?.toLowerCase() || '';
+        return n.includes('usuario') || n.includes('user');
+    });
+
     let modulesSection = '';
 
     if (diagPaq?.datos) {
@@ -15,7 +34,10 @@ export function generarArchitecture(data: SpecsData): string {
             modulesSection += `## MODULOS DERIVADOS DEL DIAGRAMA DE PAQUETES\n\n`;
             for (const pkg of pkgs) {
                 const moduleName = pkg.name.toLowerCase().replace(/\s+/g, '-');
-                modulesSection += `### ${pkg.name}\n\nModulo backend: \`src/${moduleName}/\`\nFeature frontend: \`src/features/${moduleName}/\`\nRuta: \`/${moduleName}\`\n\n`;
+                modulesSection += `### ${pkg.name}\n\n`;
+                modulesSection += `- Backend: \`src/${moduleName}/${moduleName}.module.ts\`\n`;
+                modulesSection += `- Frontend: \`src/features/${moduleName}/\`\n`;
+                modulesSection += `- Ruta: \`/${moduleName}\`\n\n`;
             }
             if (cls.length > 0) {
                 modulesSection += `### Clases en paquetes\n\n`;
@@ -40,24 +62,60 @@ export function generarArchitecture(data: SpecsData): string {
         }
     }
 
-    if (!modulesSection && diagClases?.datos) {
-        const elementos: any[] = diagClases.datos.elementos || [];
-        const clases = elementos.filter((e: any) => e.type === 'clase');
-        if (clases.length > 0) {
-            modulesSection += `## MODULOS DEDUCIDOS DEL DIAGRAMA DE CLASES\n\nNo se encontro diagrama de paquetes. Se deducen los siguientes modulos a partir de las entidades:\n\n`;
-            for (const cls of clases) {
-                const name = cls.data?.name || 'Entidad';
-                const moduleName = name.toLowerCase().replace(/\s+/g, '-');
-                modulesSection += `### ${name}\n\n`;
-                modulesSection += `- Backend: \`src/${moduleName}/${moduleName}.module.ts\`\n`;
-                modulesSection += `- Frontend: \`src/features/${moduleName}/\`\n`;
-                modulesSection += `- Ruta: \`/${moduleName}\`\n\n`;
-            }
+    if (!modulesSection && clases.length > 0) {
+        modulesSection += `## MODULOS DEDUCIDOS DEL DIAGRAMA DE CLASES\n\n`;
+        modulesSection += `No se encontro diagrama de paquetes. Modulos deducidos de las entidades:\n\n`;
+        for (const cls of clases) {
+            const name = cls.data?.name || 'Entidad';
+            const moduleName = name.toLowerCase().replace(/\s+/g, '-');
+            modulesSection += `### ${name}\n\n`;
+            modulesSection += `- Backend: \`src/${moduleName}/${moduleName}.module.ts\`\n`;
+            modulesSection += `- Frontend: \`src/features/${moduleName}/\`\n`;
+            modulesSection += `- Ruta: \`/${moduleName}\`\n`;
+            modulesSection += `- Endpoints: GET /${moduleName}, GET /${moduleName}/:id, POST /${moduleName}, PATCH /${moduleName}/:id, DELETE /${moduleName}/:id\n\n`;
         }
     }
 
     if (!modulesSection) {
-        modulesSection = `## MODULOS\n\nNo se encontraron diagramas de paquetes ni de clases. Definir modulos manualmente.\n\n`;
+        modulesSection = `## MODULOS\n\nNo se encontraron diagramas. Definir modulos manualmente.\n\n`;
+    }
+
+    // Endpoints list
+    let endpointsSection = `## ENDPOINTS REST\n\n`;
+    if (hasAuth) {
+        endpointsSection += `### Autenticacion\n\n`;
+        endpointsSection += `| Metodo | Ruta | Descripcion | Auth Required |\n| --- | --- | --- | --- |\n`;
+        endpointsSection += `| POST | /auth/register | Registrar usuario | No |\n`;
+        endpointsSection += `| POST | /auth/login | Login → devuelve JWT | No |\n`;
+        endpointsSection += `| GET | /auth/me | Perfil del usuario autenticado | Si |\n\n`;
+    }
+
+    for (const cls of clases) {
+        const name = cls.data?.name || 'Entidad';
+        const route = name.toLowerCase().replace(/\s+/g, '-');
+        endpointsSection += `### ${name}\n\n`;
+        endpointsSection += `| Metodo | Ruta | Descripcion | Auth Required |\n| --- | --- | --- | --- |\n`;
+        endpointsSection += `| GET | /${route} | Listar todos | ${hasAuth ? 'Si' : 'No'} |\n`;
+        endpointsSection += `| GET | /${route}/:id | Obtener por ID | ${hasAuth ? 'Si' : 'No'} |\n`;
+        endpointsSection += `| POST | /${route} | Crear nuevo | ${hasAuth ? 'Si' : 'No'} |\n`;
+        endpointsSection += `| PATCH | /${route}/:id | Actualizar | ${hasAuth ? 'Si' : 'No'} |\n`;
+        endpointsSection += `| DELETE | /${route}/:id | Eliminar | ${hasAuth ? 'Si' : 'No'} |\n\n`;
+    }
+
+    // Extra endpoints from use cases
+    const businessUC = useCases.filter((uc: any) => {
+        const n = uc.name?.toLowerCase() || '';
+        return !n.includes('ver') && !n.includes('listar') && !n.includes('consultar')
+            && !n.includes('login') && !n.includes('registro') && !n.includes('buscar');
+    });
+    if (businessUC.length > 0) {
+        endpointsSection += `### Acciones de Negocio Adicionales\n\n`;
+        endpointsSection += `| Metodo | Ruta sugerida | Caso de Uso | Auth Required |\n| --- | --- | --- | --- |\n`;
+        for (const uc of businessUC) {
+            const route = uc.name.toLowerCase().replace(/\s+/g, '-');
+            endpointsSection += `| POST | /acciones/${route} | ${uc.name} | ${hasAuth ? 'Si' : 'No'} |\n`;
+        }
+        endpointsSection += `\n`;
     }
 
     return `# 04_SYSTEM_ARCHITECTURE
@@ -68,6 +126,23 @@ Arquitectura base del sistema **${data.proyecto.nombre}**. Aplicacion fullstack 
 
 - Backend: NestJS + Prisma
 - Frontend: Next.js + React + TailwindCSS
+
+---
+
+## BASE DE DATOS
+
+| Campo | Valor |
+| --- | --- |
+| Motor | PostgreSQL |
+| Nombre de BD | \`${dbName}\` |
+| ORM | Prisma |
+| Variable de entorno | \`DATABASE_URL\` |
+| Tablas | ${clases.map((c: any) => `\`${c.data?.name?.toLowerCase().replace(/\s+/g, '_')}\``).join(', ') || 'No definidas'} |
+
+\`DATABASE_URL\` format:
+\`\`\`
+postgresql://USER:PASSWORD@localhost:5432/${dbName}?schema=public
+\`\`\`
 
 ---
 
@@ -85,22 +160,26 @@ Arquitectura base del sistema **${data.proyecto.nombre}**. Aplicacion fullstack 
 
 ${modulesSection}
 
-## ESTRUCTURA GENERAL
+---
+
+${endpointsSection}
+
+---
+
+## ESTRUCTURA DE CARPETAS
 
 \`\`\`txt
 /
 ├── backend/
+│   ├── prisma/
+│   │   └── schema.prisma       ← Copiar de 03_DATA_MODEL.md
 │   └── src/
 │       ├── main.ts
 │       ├── app.module.ts
 │       ├── prisma/
 │       │   ├── prisma.module.ts
 │       │   └── prisma.service.ts
-│       ├── common/
-│       │   ├── dto/
-│       │   ├── filters/
-│       │   └── utils/
-│       └── <module>/
+${hasAuth ? '│       ├── auth/\n│       │   ├── auth.module.ts\n│       │   ├── auth.controller.ts\n│       │   ├── auth.service.ts\n│       │   ├── jwt.strategy.ts\n│       │   └── dto/\n' : ''}│       └── <module>/
 │           ├── <module>.module.ts
 │           ├── <module>.controller.ts
 │           ├── <module>.service.ts
@@ -112,51 +191,41 @@ ${modulesSection}
         ├── app/
         │   ├── layout.tsx
         │   ├── page.tsx
-        │   └── <feature>/
-        │       └── page.tsx
+${hasAuth ? '│   │   ├── login/\n│   │   │   └── page.tsx\n│   │   ├── register/\n│   │   │   └── page.tsx\n' : ''}│       └── <feature>/
+        │           └── page.tsx
         ├── components/
         │   ├── ui/
         │   └── layout/
-        ├── features/
-        │   └── <feature>/
-        │       ├── components/
-        │       ├── services/
-        │       └── types.ts
         ├── lib/
-        │   ├── api.ts
+        │   ├── api.ts           ← URL base centralizada
         │   └── utils.ts
         └── types/
 \`\`\`
 
 ---
 
-## CONVENCIONES REST
+## CONFIGURACION BACKEND (main.ts)
 
-\`\`\`txt
-GET    /<resource>         → Listar
-GET    /<resource>/:id     → Obtener detalle
-POST   /<resource>         → Crear
-PATCH  /<resource>/:id     → Actualizar
-DELETE /<resource>/:id     → Eliminar
-POST   /<resource>/:id/<action> → Accion de negocio
+\`\`\`typescript
+app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+app.enableCors();
+app.setGlobalPrefix('api');
 \`\`\`
 
 ---
 
-## CONFIGURACION BACKEND
+## CONFIGURACION FRONTEND
 
-main.ts debe incluir:
-- ValidationPipe global con whitelist y transform
-- CORS habilitado
-- Prefijo global /api
+Crear \`.env.local\` en /frontend:
+\`\`\`
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+\`\`\`
 
----
-
-## FRONTEND
-
-- Usar App Router de Next.js
-- Centralizar API base en src/lib/api.ts
-- Variable de entorno: NEXT_PUBLIC_API_URL
-- No repetir URLs hardcodeadas en componentes
+Centralizar en \`src/lib/api.ts\`:
+\`\`\`typescript
+const API = process.env.NEXT_PUBLIC_API_URL!;
+export const get = (path: string) => fetch(\`\${API}\${path}\`).then(r => r.json());
+export const post = (path: string, body: any) => fetch(\`\${API}\${path}\`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }).then(r => r.json());
+\`\`\`
 `;
 }

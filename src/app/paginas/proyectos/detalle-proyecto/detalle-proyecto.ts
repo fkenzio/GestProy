@@ -8,7 +8,7 @@ import { ProcesosComponent } from './components/procesos/procesos';
 import { DiagramasComponent } from './components/diagramas/diagramas';
 import { ProyectoService } from '../../../compartidos/servicios/proyecto.service';
 import { SpecsService } from '../../../compartidos/servicios/specs.service';
-import { generarSpecsZIP } from '../../../compartidos/utils/specs-generator';
+import { generarSpecsZIP, validarSpecs } from '../../../compartidos/utils/specs-generator';
 
 @Component({
     selector: 'app-detalle-proyecto',
@@ -23,6 +23,7 @@ export class DetalleProyectoComponent {
     pestanaActiva = signal('resumen');
     cargando = signal(false);
     generandoSpecs = signal(false);
+    erroresSpecs = signal<string[]>([]);
 
     pestanas = [
         { clave: 'resumen', etiqueta: 'Resumen' },
@@ -71,8 +72,15 @@ export class DetalleProyectoComponent {
         const p = this.proyecto();
         if (!p) return;
         this.generandoSpecs.set(true);
+        this.erroresSpecs.set([]);
         this.specsService.recopilarDatos(p.id).subscribe({
             next: async (data) => {
+                const validacion = validarSpecs(data);
+                if (!validacion.valido) {
+                    this.erroresSpecs.set(validacion.errores);
+                    this.generandoSpecs.set(false);
+                    return;
+                }
                 await generarSpecsZIP(data);
                 this.generandoSpecs.set(false);
             },

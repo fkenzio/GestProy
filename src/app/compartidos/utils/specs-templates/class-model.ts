@@ -24,6 +24,7 @@ export function generarClassModel(data: SpecsData): string {
     const elementos: any[] = diagClases.datos.elementos || [];
     const conexiones: any[] = diagClases.datos.conexiones || [];
     const entidades = elementos.filter((e: any) => e.type === 'clase' || e.type === 'interfaz' || e.type === 'enum');
+    const clases = elementos.filter((e: any) => e.type === 'clase');
 
     let md = `# 03_DATA_MODEL\n\n## Descripcion General\n\nModelo de datos con **${entidades.length}** entidades y **${conexiones.length}** relaciones\n\n## Entidades\n\n`;
 
@@ -102,8 +103,88 @@ export function generarClassModel(data: SpecsData): string {
         const cascade = c.type === 'composicion' ? 'Si' : 'No';
         md += `| ${src} | ${tgt} | ${relType} | ${multi} | ${required} | ${cascade} |\n`;
     }
+    md += `\n`;
+
+    // --- SCHEMA PRISMA COMPLETO ---
+    md += `## Schema Prisma (schema.prisma)\n\n`;
+    md += `Copiar este schema directamente en \`backend/prisma/schema.prisma\`:\n\n`;
+    md += '```prisma\n';
+    md += generarSchemaPrisma(clases, elementos, conexiones);
+    md += '```\n';
 
     return md;
+}
+
+function generarSchemaPrisma(clases: any[], todos: any[], conexiones: any[]): string {
+    let schema = `generator client {\n  provider = "prisma-client-js"\n}\n\n`;
+    schema += `datasource db {\n  provider = "postgresql"\n  url      = env("DATABASE_URL")\n}\n\n`;
+
+    // Enums
+    const enums = todos.filter((e: any) => e.type === 'enum');
+    for (const en of enums) {
+        const vals: string[] = en.data?.values || [];
+        if (vals.length === 0) continue;
+        schema += `enum ${en.data.name} {\n`;
+        for (const v of vals) schema += `  ${v.toUpperCase().replace(/\s+/g, '_')}\n`;
+        schema += `}\n\n`;
+    }
+
+    for (const cls of clases) {
+        const modelName = cls.data.name;
+        const attrs = cls.data?.attributes || [];
+        const outRels = conexiones.filter((c: any) => c.sourceId === cls.id && c.type !== 'herencia' && c.type !== 'dependencia');
+        const inRels = conexiones.filter((c: any) => c.targetId === cls.id && c.type !== 'herencia' && c.type !== 'dependencia');
+
+        schema += `model ${modelName} {\n`;
+
+        // Siempre agregar id si no existe
+        const hasId = attrs.some((a: any) => a.name.toLowerCase() === 'id');
+        if (!hasId) schema += `  id        Int       @id @default(autoincrement())\n`;
+
+        for (const a of attrs) {
+            const prismaType = inferPrismaType(a.type, a.name);
+            const isPK = a.name.toLowerCase() === 'id';
+            const isEmail = a.name.toLowerCase() === 'correo' || a.name.toLowerCase() === 'email';
+            const isFk = a.name.toLowerCase().endsWith('_id') || a.name.toLowerCase().startsWith('id_');
+            let line = `  ${a.name.padEnd(12)}${prismaType}`;
+            if (isPK) line += `  @id @default(autoincrement())`;
+            else if (isEmail) line += `  @unique`;
+            else if (isFk) line += `?`;
+            schema += `${line}\n`;
+        }
+
+        // Timestamps
+        schema += `  createdAt DateTime  @default(now())\n`;
+        schema += `  updatedAt DateTime  @updatedAt\n`;
+
+        // Relaciones salientes
+        for (const r of outRels) {
+            const target = todos.find((e: any) => e.id === r.targetId);
+            if (!target?.data?.name) continue;
+            const tName = target.data.name;
+            const isComposicion = r.type === 'composicion' || r.type === 'agregacion';
+            if (isComposicion) {
+                schema += `  ${tName.toLowerCase()}s  ${tName}[]  @relation("${modelName}To${tName}")\n`;
+            } else {
+                schema += `  ${tName.toLowerCase()}   ${tName}?   @relation("${modelName}To${tName}")\n`;
+            }
+        }
+
+        // Relaciones entrantes (FK)
+        for (const r of inRels) {
+            const source = todos.find((e: any) => e.id === r.sourceId);
+            if (!source?.data?.name) continue;
+            const sName = source.data.name;
+            const fkField = `${sName.charAt(0).toLowerCase() + sName.slice(1)}Id`;
+            schema += `  ${fkField.padEnd(12)}Int?\n`;
+            schema += `  ${sName.charAt(0).toLowerCase() + sName.slice(1).padEnd(11)}${sName}?   @relation("${sName}To${modelName}", fields: [${fkField}], references: [id])\n`;
+        }
+
+        schema += `\n  @@map("${modelName.toLowerCase().replace(/\s+/g, '_')}")\n`;
+        schema += `}\n\n`;
+    }
+
+    return schema;
 }
 
 function inferPrismaType(rawType: string, fieldName: string): string {
@@ -128,6 +209,7 @@ function inferConstraints(name: string): string {
     const lower = name.toLowerCase();
     if (lower === 'correo' || lower === 'email') return '@unique';
     if (lower.endsWith('_id') || lower.startsWith('id_')) return 'FK referencia';
+    if (lower === 'password' || lower === 'contrasena' || lower === 'clave') return 'Hashear con bcrypt antes de guardar';
     return '-';
 }
 
