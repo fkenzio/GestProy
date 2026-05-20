@@ -16,7 +16,18 @@ export interface SpecsValidation {
     errores: string[];
 }
 
+function normalizeDiagramData(data: SpecsData) {
+    if (!data || !data.diagramas) return;
+    data.diagramas.forEach((d: any) => {
+        if (d.datos) {
+            if (d.datos.elements && !d.datos.elementos) d.datos.elementos = d.datos.elements;
+            if (d.datos.connections && !d.datos.conexiones) d.datos.conexiones = d.datos.connections;
+        }
+    });
+}
+
 export function validarSpecs(data: SpecsData): SpecsValidation {
+    normalizeDiagramData(data);
     const errores: string[] = [];
     const diagCU = data.diagramas.find((d: any) => d.tipo === 'casos_uso');
     const diagClases = data.diagramas.find((d: any) => d.tipo === 'clases');
@@ -43,6 +54,7 @@ export function validarSpecs(data: SpecsData): SpecsValidation {
 }
 
 export async function generarSpecsZIP(data: SpecsData): Promise<void> {
+    normalizeDiagramData(data);
     const zip = new JSZip();
     const folder = zip.folder('specs')!;
 
