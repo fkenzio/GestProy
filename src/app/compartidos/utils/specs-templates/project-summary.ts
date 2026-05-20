@@ -50,9 +50,9 @@ export function generarProjectSummary(data: SpecsData): string {
     md += `| Campo | Valor |\n| --- | --- |\n`;
     md += `| Nombre | **${data.proyecto.nombre}** |\n`;
     if (data.proyecto.descripcion) md += `| Descripcion | ${data.proyecto.descripcion} |\n`;
-    md += `| Base de Datos | \`${dbName}\` (PostgreSQL) |\n`;
-    md += `| Backend | NestJS + Prisma |\n`;
-    md += `| Frontend | Next.js + React + TailwindCSS |\n`;
+    md += `| Base de Datos | \`${dbName}\` (MySQL) |\n`;
+    md += `| Backend | Flask + SQLAlchemy |\n`;
+    md += `| Frontend | Angular 17+ (Standalone) + TailwindCSS |\n`;
     md += `| Autenticacion | ${hasAuth ? 'SI — JWT con guards' : 'NO'} |\n`;
     md += `\n`;
 

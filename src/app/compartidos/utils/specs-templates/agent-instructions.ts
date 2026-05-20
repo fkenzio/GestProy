@@ -16,18 +16,19 @@ Tu resultado debe ser una aplicacion funcional, compilable, visualmente cuidada 
 ## STACK TECNOLOGICO
 
 ### Frontend
-- Framework: **Next.js 15+** con App Router
-- UI: **React 19+**
+- Framework: **Angular 17+**
+- Componentes: **Standalone Components** (obligatorio, no usar NgModules)
 - Lenguaje: **TypeScript 5+**
 - Estilos: **TailwindCSS**
-- Iconos: **lucide-react**
+- Iconos: **Lucide Angular** (lucide-angular) o Material Icons
 
 ### Backend
-- Framework: **NestJS 11+**
-- Lenguaje: **TypeScript 5+**
-- ORM: **Prisma**
-- Base de datos: definida en 04_SYSTEM_ARCHITECTURE.md (default: PostgreSQL)
-- Validacion: class-validator + class-transformer
+- Framework: **Flask (Python 3.10+)**
+- Arquitectura: **Blueprints** (cada entidad debe tener su blueprint en una carpeta separada)
+- ORM: **SQLAlchemy** (Flask-SQLAlchemy)
+- Base de datos: **MySQL** (usando PyMySQL)
+- Migraciones: Flask-Migrate (Alembic)
+- Variables de entorno: python-dotenv (.env)
 
 ---
 
@@ -35,8 +36,8 @@ Tu resultado debe ser una aplicacion funcional, compilable, visualmente cuidada 
 
 1. 01_AI_CONTEXT.md
 2. 02_SYSTEM_REQUIREMENTS.md — casos de uso, actores y reglas funcionales
-3. 03_DATA_MODEL.md — entidades, atributos, metodos y relaciones
-4. 04_SYSTEM_ARCHITECTURE.md — estructura del proyecto y convenciones tecnicas
+3. 03_DATA_MODEL.md — entidades, atributos y modelos SQLAlchemy
+4. 04_SYSTEM_ARCHITECTURE.md — estructura del proyecto y contratos API JSON
 5. 05_WORKFLOWS.md — flujos de proceso y secuencias
 6. 06_IMPLEMENTATION_PHASES.md — fases obligatorias de construccion
 7. 07_UI_UX_GUIDELINES.md — reglas visuales y UX/UI
@@ -48,9 +49,9 @@ No implementes nada antes de haber considerado todos los archivos.
 ## PRINCIPIO DE IMPLEMENTACION
 
 1. Primero entender entidades, relaciones y reglas.
-2. Despues crear base de datos y API.
-3. Despues crear servicios frontend y pantallas.
-4. Al final pulir UX/UI y responsive.
+2. Despues crear base de datos (Flask Models) y API (Flask Blueprints).
+3. Despues crear servicios frontend (Angular HttpClient) y pantallas (Angular Components).
+4. Al final pulir UX/UI y responsive con Tailwind.
 
 ---
 
@@ -58,10 +59,10 @@ No implementes nada antes de haber considerado todos los archivos.
 
 ### Puedes inferir
 - Nombres de rutas REST a partir de casos de uso
-- Nombres de modulos a partir de entidades
+- Nombres de blueprints a partir de entidades
 - Pantallas necesarias a partir de casos de uso
 - Validaciones basicas segun tipos de datos
-- Relaciones Prisma segun multiplicidades UML
+- Relaciones SQLAlchemy segun multiplicidades UML
 
 ### No puedes inventar
 - Entidades no descritas
@@ -69,46 +70,41 @@ No implementes nada antes de haber considerado todos los archivos.
 - Relaciones no descritas
 - Endpoints no respaldados por casos de uso
 - Pantallas sin proposito funcional
-- Dashboards si no hay metricas definidas
-- Autenticacion si no esta pedida
+- Autenticacion si no esta pedida explicitamente
 
 ---
 
-## REGLAS DE BACKEND
+## REGLAS DE BACKEND (FLASK)
 
-- Un modulo NestJS por entidad principal
-- Cada modulo: module, controller, service, DTOs
-- Controllers solo manejan HTTP
-- Logica de negocio en services
-- Prisma solo desde services
-- No SQL directo
-- Usar class-validator en DTOs
-- Manejar errores con excepciones NestJS
+- Usar **Blueprints**. No meter toda la logica en \`app.py\`.
+- Cada modulo/entidad debe tener su propia carpeta con \`routes.py\` (controladores).
+- Los modelos de base de datos deben estar centralizados o en sus respectivos modulos (SQLAlchemy).
+- Retornar siempre respuestas en formato JSON.
+- Las variables de entorno (como MYSQL_URI) deben leerse del \`.env\`. Proveer un \`.env.example\`.
+- Manejar CORS usando \`Flask-CORS\`.
 
 ---
 
-## REGLAS DE FRONTEND
+## REGLAS DE FRONTEND (ANGULAR)
 
-- Usar Next.js App Router
-- Componentes funcionales React con TypeScript
-- Centralizar llamadas HTTP en lib/api.ts
-- Cada pantalla: loading, error, empty, success states
-- Formularios con validacion minima
-- UI responsive con TailwindCSS
+- Usar **Standalone Components** exclusivamente.
+- Centralizar las llamadas a la API en \`@Injectable()\` Services usando \`HttpClient\`.
+- Usar \`Signals\` para manejo de estado reactivo cuando sea posible.
+- Cada pantalla debe manejar estados de: loading, error, empty, success.
+- Formularios Reactivos (\`ReactiveFormsModule\`) con validacion basica.
+- UI responsive con TailwindCSS.
 
 ---
 
 ## CHECKLIST FINAL
 
-- [ ] Backend compila sin errores TypeScript
-- [ ] Frontend compila sin errores TypeScript
-- [ ] schema.prisma contiene todas las entidades de 03_DATA_MODEL.md
-- [ ] Todas las relaciones del modelo estan representadas
-- [ ] Todos los casos de uso de 02_SYSTEM_REQUIREMENTS.md tienen endpoint o flujo
-- [ ] Pantallas principales existen y son navegables
-- [ ] Formularios tienen validacion minima
-- [ ] UI aplica TailwindCSS correctamente
-- [ ] UI es responsive
-- [ ] No hay rutas API hardcodeadas dispersas
+- [ ] Backend arranca sin errores de importacion en Flask.
+- [ ] Frontend compila sin errores TypeScript (ng build).
+- [ ] SQLAlchemy models creados correctamente.
+- [ ] Todos los casos de uso de 02_SYSTEM_REQUIREMENTS.md tienen endpoint (Blueprint) o flujo.
+- [ ] Pantallas principales existen, estan ruteadas y son navegables.
+- [ ] Las peticiones HTTP del Angular Service apuntan a la URL base correcta de Flask.
+- [ ] UI aplica TailwindCSS correctamente.
+- [ ] No hay rutas API hardcodeadas dispersas en componentes, todas usan los Services.
 `;
 }

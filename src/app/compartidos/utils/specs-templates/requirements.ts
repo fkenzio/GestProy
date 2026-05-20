@@ -63,6 +63,7 @@ export function generarRequirements(data: SpecsData): string {
     if (hasSearch) implicitRules.push('**[DATA-002]** Busquedas insensibles a mayusculas (ILIKE en PostgreSQL).');
     if (hasPagination) implicitRules.push('**[DATA-003]** Soportar paginacion en listados: ?page=1&limit=10.');
     if (hasUser) implicitRules.push('**[DATA-004]** Registros deben guardar referencia al usuario creador.');
+    implicitRules.push('**[API-001]** Todo error en Flask DEBE retornar un JSON con formato `{"error": "Mensaje descriptivo"}` y su codigo HTTP correcto (400, 404, 500).');
 
     // ── Construcción del MD ────────────────────────────────────────────────────
     let md = `# 02_SYSTEM_REQUIREMENTS\n\n## Descripcion General del Sistema\n\nSistema: **${data.proyecto.nombre}**\n\n`;

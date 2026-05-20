@@ -28,8 +28,8 @@ Cada pantalla: titulo claro, descripcion, accion principal visible, contenido en
 
 # STACK VISUAL
 
-Usar: Next.js, React, TailwindCSS, lucide-react.
-No usar: Bootstrap, CSS inline, librerias UI pesadas.
+Usar: Angular 17+, TailwindCSS, lucide-angular.
+No usar: Bootstrap, CSS inline, librerias UI pesadas que no se soliciten.
 
 ---
 
@@ -48,7 +48,7 @@ No usar: Bootstrap, CSS inline, librerias UI pesadas.
 
 # TIPOGRAFIA
 
-Usar Inter o fuente default de Next.js.
+Usar Inter o fuente default del navegador.
 - Titulos: text-2xl font-semibold tracking-tight
 - Texto: text-sm text-zinc-600
 - Metadata: text-xs text-zinc-500
