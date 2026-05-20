@@ -5,166 +5,231 @@ export function generarRequirements(data: SpecsData): string {
     const diagsSeq = data.diagramas.filter((d: any) => d.tipo === 'secuencia');
     const diagClases = data.diagramas.find((d: any) => d.tipo === 'clases');
 
-    if (!diagCU || !diagCU.datos) {
-        return `# 02_SYSTEM_REQUIREMENTS\n\n## Descripcion General del Sistema\n\nSistema: **${data.proyecto.nombre}**\n\n${data.proyecto.descripcion || ''}\n\nNo se encontro diagrama de casos de uso. Definir requisitos manualmente.\n`;
+    const clases: any[] = diagClases?.datos?.elementos?.filter((e: any) => e.type === 'clase') || [];
+
+    // ── Datos de procesos/subprocesos/requerimientos ──────────────────────────
+    const procesos: any[] = data.procesos || [];
+    const subprocesos: any[] = data.subprocesos || [];
+    const requerimientos: any[] = data.requerimientos || [];
+
+    // Agrupar subprocesos por proceso
+    const subsByProceso: Record<number, any[]> = {};
+    for (const sub of subprocesos) {
+        if (!subsByProceso[sub.proceso_id]) subsByProceso[sub.proceso_id] = [];
+        subsByProceso[sub.proceso_id].push(sub);
     }
 
-    const datos = diagCU.datos;
+    // Agrupar requerimientos por subproceso
+    const reqsBySubproceso: Record<number, any[]> = {};
+    for (const req of requerimientos) {
+        if (!reqsBySubproceso[req.subproceso_id]) reqsBySubproceso[req.subproceso_id] = [];
+        reqsBySubproceso[req.subproceso_id].push(req);
+    }
+
+    // ── Datos de diagrama de CU ────────────────────────────────────────────────
+    const datos = diagCU?.datos || {};
     const actors: any[] = datos.actors || [];
     const useCases: any[] = datos.useCases || [];
     const relations: any[] = datos.relations || [];
     const boundaries: any[] = datos.boundaries || [];
-    const clases: any[] = diagClases?.datos?.elementos?.filter((e: any) => e.type === 'clase') || [];
 
-    // --- Detectar reglas de negocio implícitas ---
+    // ── Detectar reglas implícitas ─────────────────────────────────────────────
     const implicitRules: string[] = [];
     const ucNames = useCases.map((uc: any) => uc.name?.toLowerCase() || '');
+    const reqTitles = requerimientos.map((r: any) => r.titulo?.toLowerCase() || '');
     const claseNames = clases.map((c: any) => c.data?.name?.toLowerCase() || '');
+    const allTextLower = [...ucNames, ...reqTitles];
 
-    const hasLogin = ucNames.some(n => n.includes('login') || n.includes('iniciar sesion') || n.includes('autenticacion'));
-    const hasRegister = ucNames.some(n => n.includes('registro') || n.includes('registrar') || n.includes('crear cuenta'));
+    const hasLogin = allTextLower.some(n => n.includes('login') || n.includes('iniciar sesion') || n.includes('autenticacion'));
+    const hasRegister = allTextLower.some(n => n.includes('registro') || n.includes('registrar') || n.includes('crear cuenta'));
     const hasUser = claseNames.some(n => n.includes('usuario') || n.includes('user'));
     const hasRole = claseNames.some(n => n.includes('rol') || n.includes('role'));
-    const hasProfile = ucNames.some(n => n.includes('perfil') || n.includes('profile'));
-    const hasPassword = ucNames.some(n => n.includes('contrasena') || n.includes('password') || n.includes('cambiar clave'));
-    const hasDelete = ucNames.some(n => n.includes('eliminar') || n.includes('borrar') || n.includes('delete'));
-    const hasSearch = ucNames.some(n => n.includes('buscar') || n.includes('search') || n.includes('filtrar'));
+    const hasProfile = allTextLower.some(n => n.includes('perfil') || n.includes('profile'));
+    const hasPassword = allTextLower.some(n => n.includes('contrasena') || n.includes('password') || n.includes('cambiar clave'));
+    const hasDelete = allTextLower.some(n => n.includes('eliminar') || n.includes('borrar') || n.includes('delete'));
+    const hasSearch = allTextLower.some(n => n.includes('buscar') || n.includes('search') || n.includes('filtrar'));
     const hasPagination = clases.length > 1;
 
     if (hasLogin) {
-        implicitRules.push('**[AUTH-001]** El sistema debe usar JWT (JSON Web Tokens) para autenticacion. El token debe incluirse en el header Authorization: Bearer <token>.');
-        implicitRules.push('**[AUTH-002]** Las contrasenas deben hashearse con bcrypt antes de guardarse en base de datos. Nunca guardar contrasena en texto plano.');
-        implicitRules.push('**[AUTH-003]** El JWT debe tener expiracion configurada (recomendado: 7 dias). Implementar refresh token si se requiere sesion persistente.');
+        implicitRules.push('**[AUTH-001]** Usar JWT. Token en header Authorization: Bearer <token>.');
+        implicitRules.push('**[AUTH-002]** Hashear contrasenas con bcrypt. Nunca guardar en texto plano.');
+        implicitRules.push('**[AUTH-003]** JWT con expiracion de 7 dias.');
     }
-    if (hasRegister) {
-        implicitRules.push('**[AUTH-004]** Al registrarse, validar que el correo no este ya en uso. Devolver error claro si esta duplicado.');
-    }
-    if (hasRole) {
-        implicitRules.push('**[RBAC-001]** El sistema tiene roles. Implementar guards que validen el rol del usuario antes de permitir acciones privilegiadas.');
-    }
-    if (hasProfile) {
-        implicitRules.push('**[PROFILE-001]** El usuario solo puede editar su propio perfil. Nunca permitir que un usuario modifique el perfil de otro.');
-    }
-    if (hasPassword) {
-        implicitRules.push('**[AUTH-005]** Al cambiar contrasena, verificar la contrasena actual antes de permitir el cambio.');
-    }
-    if (hasDelete) {
-        implicitRules.push('**[DATA-001]** Al eliminar registros, implementar soft delete (campo deletedAt) para mantener historial, a menos que el caso de uso especifique eliminacion permanente.');
-    }
-    if (hasSearch) {
-        implicitRules.push('**[DATA-002]** Las busquedas deben ser insensibles a mayusculas/minusculas. Usar ILIKE en PostgreSQL o toLowerCase en la logica.');
-    }
-    if (hasPagination) {
-        implicitRules.push('**[DATA-003]** Los listados deben soportar paginacion. Implementar parametros ?page=1&limit=10 en todos los endpoints GET de listas.');
-    }
-    if (hasUser) {
-        implicitRules.push('**[DATA-004]** Todos los registros creados por un usuario deben guardar referencia al usuario creador (campo createdBy o userId).');
-    }
+    if (hasRegister) implicitRules.push('**[AUTH-004]** Validar correo no duplicado al registrar.');
+    if (hasRole) implicitRules.push('**[RBAC-001]** Implementar guards de rol en rutas protegidas.');
+    if (hasProfile) implicitRules.push('**[PROFILE-001]** Usuario solo puede editar su propio perfil.');
+    if (hasPassword) implicitRules.push('**[AUTH-005]** Verificar contrasena actual antes de permitir cambio.');
+    if (hasDelete) implicitRules.push('**[DATA-001]** Considerar soft delete (campo deletedAt) para mantener historial.');
+    if (hasSearch) implicitRules.push('**[DATA-002]** Busquedas insensibles a mayusculas (ILIKE en PostgreSQL).');
+    if (hasPagination) implicitRules.push('**[DATA-003]** Soportar paginacion en listados: ?page=1&limit=10.');
+    if (hasUser) implicitRules.push('**[DATA-004]** Registros deben guardar referencia al usuario creador.');
 
+    // ── Construcción del MD ────────────────────────────────────────────────────
     let md = `# 02_SYSTEM_REQUIREMENTS\n\n## Descripcion General del Sistema\n\nSistema: **${data.proyecto.nombre}**\n\n`;
     if (data.proyecto.descripcion) md += `${data.proyecto.descripcion}\n\n`;
 
+    // Boundaries
     if (boundaries.length > 0) {
         md += `## Limites del Sistema\n\n`;
         for (const b of boundaries) md += `- **${b.name}**\n`;
         md += `\n`;
     }
 
+    // Actores del diagrama
     md += `## Actores del Sistema\n\n`;
     if (actors.length === 0) {
-        md += `No se definieron actores.\n\n`;
+        md += `No se definieron actores en el diagrama de casos de uso.\n\n`;
     } else {
         for (const actor of actors) {
             const actorRels = relations.filter((r: any) =>
                 r.type === 'association' && (r.sourceId === actor.id || r.targetId === actor.id)
             );
-            const ucNames2 = actorRels.map((r: any) => {
+            const ucNamesForActor = actorRels.map((r: any) => {
                 const ucId = r.sourceId === actor.id ? r.targetId : r.sourceId;
                 return useCases.find((u: any) => u.id === ucId)?.name;
             }).filter(Boolean);
             md += `- **${actor.name}**`;
-            if (ucNames2.length > 0) md += ` — Participa en: ${ucNames2.join(', ')}`;
+            if (ucNamesForActor.length > 0) md += ` — Participa en: ${ucNamesForActor.join(', ')}`;
             md += `\n`;
         }
         md += `\n`;
     }
 
-    md += `## Casos de Uso Detallados\n\n`;
-    for (const uc of useCases) {
-        md += `### ${uc.name}\n\n`;
+    // Casos de uso
+    if (useCases.length > 0) {
+        md += `## Casos de Uso\n\n`;
+        for (const uc of useCases) {
+            md += `### ${uc.name}\n\n`;
 
-        const actorRels = relations.filter((r: any) =>
-            r.type === 'association' && (r.sourceId === uc.id || r.targetId === uc.id)
-        );
-        const participatingActors = actorRels.map((r: any) => {
-            const otherId = r.sourceId === uc.id ? r.targetId : r.sourceId;
-            return actors.find((a: any) => a.id === otherId)?.name;
-        }).filter(Boolean);
+            const actorRels = relations.filter((r: any) =>
+                r.type === 'association' && (r.sourceId === uc.id || r.targetId === uc.id)
+            );
+            const participatingActors = actorRels.map((r: any) => {
+                const otherId = r.sourceId === uc.id ? r.targetId : r.sourceId;
+                return actors.find((a: any) => a.id === otherId)?.name;
+            }).filter(Boolean);
 
-        if (participatingActors.length > 0) {
-            md += `#### Actores Participantes\n\n`;
-            for (const a of participatingActors) md += `- ${a}\n`;
-            md += `\n`;
-        }
-
-        const includes = relations.filter((r: any) => r.type === 'include' && r.sourceId === uc.id);
-        if (includes.length > 0) {
-            md += `#### Incluye\n\n`;
-            for (const inc of includes) {
-                const target = useCases.find((u: any) => u.id === inc.targetId);
-                if (target) md += `- **${target.name}**\n`;
+            if (participatingActors.length > 0) {
+                md += `**Actores:** ${participatingActors.join(', ')}\n\n`;
             }
-            md += `\n`;
-        }
 
-        const extends_ = relations.filter((r: any) => r.type === 'extend' && r.sourceId === uc.id);
-        if (extends_.length > 0) {
-            md += `#### Extiende\n\n`;
-            for (const ext of extends_) {
-                const target = useCases.find((u: any) => u.id === ext.targetId);
-                if (target) md += `- **${target.name}**\n`;
+            const includes = relations.filter((r: any) => r.type === 'include' && r.sourceId === uc.id);
+            if (includes.length > 0) {
+                md += `**Incluye:** ${includes.map((inc: any) => useCases.find((u: any) => u.id === inc.targetId)?.name).filter(Boolean).join(', ')}\n\n`;
             }
-            md += `\n`;
-        }
 
-        const matchedSeq = findMatchingSequence(uc.name, diagsSeq);
-        if (matchedSeq) {
-            const seqData = matchedSeq.datos || {};
-            const lifelines: any[] = seqData.lifelines || [];
-            const messages: any[] = seqData.messages || [];
-            if (messages.length > 0) {
-                md += `#### Flujos de Ejecucion\n\n`;
-                for (let i = 0; i < messages.length; i++) {
-                    const msg = messages[i];
-                    const src = lifelines.find((l: any) => l.id === msg.sourceId)?.name || '?';
-                    const tgt = lifelines.find((l: any) => l.id === msg.targetId)?.name || '?';
-                    md += `  - [${i + 1}] ${src} -> ${tgt}: ${msg.name}\n`;
+            const extends_ = relations.filter((r: any) => r.type === 'extend' && r.sourceId === uc.id);
+            if (extends_.length > 0) {
+                md += `**Extiende:** ${extends_.map((ext: any) => useCases.find((u: any) => u.id === ext.targetId)?.name).filter(Boolean).join(', ')}\n\n`;
+            }
+
+            const matchedSeq = findMatchingSequence(uc.name, diagsSeq);
+            if (matchedSeq) {
+                const lifelines: any[] = matchedSeq.datos?.lifelines || [];
+                const messages: any[] = matchedSeq.datos?.messages || [];
+                if (messages.length > 0) {
+                    md += `**Flujo de ejecucion:**\n\n`;
+                    for (let i = 0; i < messages.length; i++) {
+                        const msg = messages[i];
+                        const src = lifelines.find((l: any) => l.id === msg.sourceId)?.name || '?';
+                        const tgt = lifelines.find((l: any) => l.id === msg.targetId)?.name || '?';
+                        md += `  ${i + 1}. ${src} → ${tgt}: ${msg.name}\n`;
+                    }
+                    md += `\n`;
+                }
+            }
+
+            md += `---\n\n`;
+        }
+    }
+
+    // ── SECCIÓN PRINCIPAL NUEVA: Requerimientos formales ──────────────────────
+    if (procesos.length > 0) {
+        md += `## Requerimientos Formales del Sistema\n\n`;
+        md += `> Documentados mediante técnicas de recolección de información.\n\n`;
+
+        // Contadores globales por tipo
+        const totalFuncionales = requerimientos.filter((r: any) => r.tipo === 'funcional').length;
+        const totalNoFuncionales = requerimientos.filter((r: any) => r.tipo === 'no_funcional').length;
+
+        md += `**Total de requerimientos:** ${requerimientos.length} `;
+        md += `(${totalFuncionales} funcionales, ${totalNoFuncionales} no funcionales)\n\n`;
+
+        for (const proceso of procesos) {
+            const subs = subsByProceso[proceso.id] || [];
+            const reqsEnProceso = subs.flatMap((s: any) => reqsBySubproceso[s.id] || []);
+            if (reqsEnProceso.length === 0 && subs.length === 0) continue;
+
+            md += `### Proceso: ${proceso.nombre}\n\n`;
+            if (proceso.descripcion) md += `**Descripcion:** ${proceso.descripcion}\n\n`;
+            if (proceso.objetivo) md += `**Objetivo:** ${proceso.objetivo}\n\n`;
+
+            for (const sub of subs) {
+                const reqs = reqsBySubproceso[sub.id] || [];
+                if (reqs.length === 0) continue;
+
+                md += `#### Subproceso: ${sub.nombre}\n\n`;
+                if (sub.descripcion) md += `${sub.descripcion}\n\n`;
+
+                md += `| Codigo | Titulo | Tipo | Prioridad | Técnica de Recoleccion | Estado |\n`;
+                md += `| --- | --- | --- | --- | --- | --- |\n`;
+
+                for (const req of reqs) {
+                    const tecnica = req.tecnica_nombre || 'No especificada';
+                    const tipo = req.tipo === 'funcional' ? 'Funcional' : req.tipo === 'no_funcional' ? 'No Funcional' : req.tipo || '-';
+                    const prioridad = req.prioridad || '-';
+                    const estado = req.estado || '-';
+                    md += `| ${req.codigo} | ${req.titulo} | ${tipo} | ${prioridad} | ${tecnica} | ${estado} |\n`;
                 }
                 md += `\n`;
+
+                // Detalle de cada requerimiento con descripción y criterios
+                for (const req of reqs) {
+                    md += `##### ${req.codigo} — ${req.titulo}\n\n`;
+                    if (req.descripcion) md += `${req.descripcion}\n\n`;
+
+                    if (req.tecnica_nombre) {
+                        md += `**Técnica de recolección:** ${req.tecnica_nombre}`;
+                        if (req.tecnica_categoria) md += ` (${req.tecnica_categoria})`;
+                        md += `\n\n`;
+                    }
+
+                    const criterios: any[] = req.criterios || [];
+                    if (criterios.length > 0) {
+                        md += `**Criterios de aceptacion:**\n\n`;
+                        for (const c of criterios) {
+                            md += `- ${c.descripcion}\n`;
+                        }
+                        md += `\n`;
+                    }
+                }
             }
         }
-
-        md += `---\n\n`;
     }
 
-    md += `## Matriz de Relaciones entre Casos de Uso\n\n`;
-    md += `| Caso de Uso | Incluye | Extiende |\n| --- | --- | --- |\n`;
-    for (const uc of useCases) {
-        const inc = relations.filter((r: any) => r.type === 'include' && r.sourceId === uc.id)
-            .map((r: any) => useCases.find((u: any) => u.id === r.targetId)?.name).filter(Boolean).join(', ') || '-';
-        const ext = relations.filter((r: any) => r.type === 'extend' && r.sourceId === uc.id)
-            .map((r: any) => useCases.find((u: any) => u.id === r.targetId)?.name).filter(Boolean).join(', ') || '-';
-        md += `| ${uc.name} | ${inc} | ${ext} |\n`;
-    }
-    md += `\n`;
-
+    // Reglas implícitas
     if (implicitRules.length > 0) {
         md += `## Reglas de Negocio Implicitas\n\n`;
-        md += `Las siguientes reglas se deducen automaticamente del modelo y casos de uso. El agente DEBE implementarlas:\n\n`;
+        md += `Las siguientes reglas se deducen automaticamente del modelo y requisitos. El agente DEBE implementarlas:\n\n`;
         for (const rule of implicitRules) md += `- ${rule}\n`;
         md += `\n`;
     }
 
+    // Matriz de CU
+    if (useCases.length > 0) {
+        md += `## Matriz de Relaciones entre Casos de Uso\n\n`;
+        md += `| Caso de Uso | Incluye | Extiende |\n| --- | --- | --- |\n`;
+        for (const uc of useCases) {
+            const inc = relations.filter((r: any) => r.type === 'include' && r.sourceId === uc.id)
+                .map((r: any) => useCases.find((u: any) => u.id === r.targetId)?.name).filter(Boolean).join(', ') || '-';
+            const ext = relations.filter((r: any) => r.type === 'extend' && r.sourceId === uc.id)
+                .map((r: any) => useCases.find((u: any) => u.id === r.targetId)?.name).filter(Boolean).join(', ') || '-';
+            md += `| ${uc.name} | ${inc} | ${ext} |\n`;
+        }
+        md += `\n`;
+    }
+
+    // Entidades de negocio
     if (clases.length > 0) {
         md += `## Entidades de Negocio Involucradas\n\n`;
         for (const cls of clases) {
